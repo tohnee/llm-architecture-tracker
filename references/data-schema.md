@@ -4,8 +4,47 @@ This document defines the structured data schema for per-model extraction and sn
 
 ## Schema Version
 
-- **Schema version**: 1.0.0
-- **Last updated**: 2026-06-25
+- **Schema version**: 1.2.0
+- **Last updated**: 2026-06-26
+
+## 🔒 Trusted Source Policy (MANDATORY)
+
+**Information must come from official sources or well-known established platforms. Personal blogs and unvetted personal media are prohibited.**
+
+### Allowed Source Domains (Whitelist)
+
+| Source Type | Domains | Priority | Notes |
+|-------------|---------|----------|-------|
+| **Official Lab Websites** | `*.deepseek.com`, `*.anthropic.com`, `*.openai.com`, `*.google.com`, `*.deepmind.google`, `*.meta.com`, `*.ai.meta.com`, `*.mistral.ai`, `*.qwenlm.com`, `*.alibaba.com`, `*.moonshot.cn`, `*.xiaomi.com`, `*.stepfun.com`, `*.minimax.io`, `*.minimaxi.io`, `*.nvidia.com`, `*.z.ai`, `*.zai.org` | P0 (highest) | Official announcements, blogs, pricing pages |
+| **Official GitHub** | `github.com/<org>/<repo>` (matching lab orgs) | P0 | Official code, config.json, model implementations |
+| **Hugging Face** | `huggingface.co`, `hf.co` | P0 | Model cards, config.json, model weights |
+| **ModelScope** | `modelscope.cn` | P0 | Chinese alternative to HF (verified mirrors) |
+| **Official API Docs** | `platform.openai.com`, `docs.anthropic.com`, `ai.google.dev`, `api.deepseek.com`, etc. | P0 | Official API documentation |
+| **Official Cloud Storage** | `storage.googleapis.com` (for official PDF reports) | P0 | Official technical reports hosted on cloud storage |
+| **OpenRouter** | `openrouter.ai` | P1 | Pricing, context windows, usage rankings (pricing metadata) |
+| **arXiv** | `arxiv.org` | P1 | Technical reports, preprints (must be from official lab authors) |
+| **Established Tech News** | `techcrunch.com`, `theverge.com`, `wired.com`, `arstechnica.com`, `bloomberg.com`, `reuters.com` | P2 | News coverage of official announcements, release dates |
+| **Community Platforms** | `reddit.com/r/LocalLLaMA`, `reddit.com/r/MachineLearning` | P2 | Community discussions, verified leaks, model comparisons (must cross-verify) |
+| **Wikipedia** | `wikipedia.org` | P2 | General reference, release dates, basic metadata (never use for architecture params) |
+| **YouTube** | `youtube.com` (official lab channels, established tech reviewers) | P2 | Official demos, technical deep dives, release announcements |
+
+### ❌ Prohibited Sources (Never Use)
+
+- Personal blogs (Medium, Substack, personal websites) - unless written by recognized lab researchers
+- Random social media posts from personal accounts (Twitter/X personal accounts, Facebook, etc.)
+- Third-party aggregators (Artificial Analysis, llm-stats.com, etc.) - triangulate only, never primary source
+- Random podcasts from unknown creators
+- Unofficial GitHub mirrors or forks
+- AI-generated content without cross-verification against P0/P1 sources
+- Content farms and clickbait sites
+
+### Verification Rules
+
+1. **Minimum of 1 P0 source required per model** (config.json from HF/GitHub is preferred for architecture params)
+2. Architecture parameters (num_heads, num_kv_heads, num_layers, expert counts) **MUST** come from `config.json` or official code - never from blog posts or press releases
+3. Pricing MUST come from official API docs or OpenRouter (with official cross-check)
+4. If sources disagree, the source with higher priority wins. Document discrepancies in `notes`.
+5. `last_verified` date is mandatory and must be within 30 days of snapshot generation.
 
 ---
 
