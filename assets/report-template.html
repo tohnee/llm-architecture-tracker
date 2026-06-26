@@ -1,19 +1,3 @@
-<!--
-  report-template.html — house template for the llm-architecture-tracker skill.
-
-  HOW TO USE (for Claude, in Step 3):
-  - This is a single self-contained file. Duplicate it, then fill the marked
-    {{PLACEHOLDERS}} and clone the example components (model cards, table rows,
-    SVG diagrams) as many times as needed.
-  - All styling is via CSS variables in :root / [data-theme]. Use them; don't
-    hardcode colors. Per-lab accent chips live in .lab-* classes — add more labs
-    by copying the pattern.
-  - The reusable SVG diagram blocks near the bottom (transformer block, MLA,
-    GQA, MoE routing) are templates: copy, retitle, and re-annotate per model.
-  - Keep it dependency-free. The only JS is the theme toggle + table sort, both
-    inline. No CDN required for content.
-  - Filename when rendered: llm-landscape-report_<YYYY-MM-DD>.html
--->
 <!DOCTYPE html>
 <html lang="zh" data-theme="dark">
 <head>
@@ -22,789 +6,444 @@
 <title>{{REPORT_TITLE}} — {{SNAPSHOT_DATE}}</title>
 <style>
   :root {
-    /* House palette — technical-editorial. Dominant ink + sharp accent. */
-    --bg: #0e1117;
-    --bg-soft: #161b22;
-    --bg-card: #1b2230;
-    --ink: #e6edf3;
-    --ink-soft: #9da7b3;
-    --ink-faint: #6b7682;
-    --line: #2a3340;
-    --accent: #ff7849;        /* signal orange */
-    --accent-2: #5b8cff;      /* blueprint indigo */
-    --accent-3: #3fb950;      /* positive */
-    --warn: #d29922;
+    --bg:#0e1117; --bg-soft:#161b22; --bg-card:#1b2230; --surface-2:#232b38;
+    --ink:#e6edf3; --ink-soft:#9da7b3; --ink-faint:#6b7682;
+    --line:#2a3340; --accent:#5b8cff; --accent-2:#e9a03b; --accent-3:#3fb950; --warn:#d29922; --red:#d04b4b;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Roboto, sans-serif;
     --mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
-    --display: "Space Grotesk", "Georgia", serif;  /* swap per spec; avoid Inter/Arial defaults */
-    --text: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --display: "Space Grotesk", "PingFang SC", "Microsoft YaHei", Georgia, serif;
+    --text: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", Roboto, sans-serif;
     --maxw: 1180px;
   }
-  [data-theme="light"] {
-    --bg: #f7f8fa; --bg-soft: #eef1f5; --bg-card: #ffffff;
-    --ink: #16202b; --ink-soft: #4a5763; --ink-faint: #8a96a3;
-    --line: #dde3ea; --accent: #e85d2a; --accent-2: #2f5fd6;
-  }
-  * { box-sizing: border-box; }
-  html { scroll-behavior: smooth; }
-  body {
-    margin: 0; background: var(--bg); color: var(--ink);
-    font-family: var(--text); line-height: 1.6; font-size: 16px;
-  }
-  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
-  h1, h2, h3, h4 { font-family: var(--display); line-height: 1.2; letter-spacing: -0.01em; }
-  h1 { font-size: 2.6rem; margin: 0 0 8px; }
-  h2 { font-size: 1.8rem; margin: 56px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--line); }
-  h3 { font-size: 1.3rem; margin: 32px 0 10px; }
-  h4 { font-size: 1.05rem; margin: 20px 0 6px; color: var(--ink-soft); }
-  a { color: var(--accent-2); text-decoration: none; }
-  a:hover { text-decoration: underline; }
-  code, .mono { font-family: var(--mono); font-size: 0.9em; }
-  p { margin: 10px 0; }
-
-  /* Header */
-  header.hero {
-    background: linear-gradient(135deg, var(--bg-soft), var(--bg));
-    border-bottom: 1px solid var(--line); padding: 48px 0 36px;
-  }
-  .eyebrow { font-family: var(--mono); color: var(--accent); text-transform: uppercase;
-    letter-spacing: 0.18em; font-size: 0.78rem; }
-  .thesis { color: var(--ink-soft); max-width: 760px; font-size: 1.12rem; margin-top: 12px; }
-  .meta-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-  .pill { font-family: var(--mono); font-size: 0.78rem; background: var(--bg-card);
-    border: 1px solid var(--line); border-radius: 999px; padding: 5px 12px; color: var(--ink-soft); }
-  .toggle { position: fixed; top: 16px; right: 16px; z-index: 20; cursor: pointer;
-    background: var(--bg-card); border: 1px solid var(--line); color: var(--ink);
-    border-radius: 999px; padding: 8px 14px; font-family: var(--mono); font-size: 0.8rem; }
-
-  /* Exec summary */
-  .summary { background: var(--bg-card); border: 1px solid var(--line);
-    border-left: 4px solid var(--accent); border-radius: 8px; padding: 20px 24px; margin: 24px 0; }
-  .summary ul { margin: 6px 0 0; padding-left: 20px; }
-  .summary li { margin: 8px 0; }
-
-  /* Tables */
-  .tbl-scroll { overflow-x: auto; margin: 16px 0; border: 1px solid var(--line); border-radius: 8px; }
-  table { border-collapse: collapse; width: 100%; font-size: 0.9rem; }
-  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); white-space: nowrap; }
-  th { background: var(--bg-soft); font-family: var(--mono); font-size: 0.76rem;
-    text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); cursor: pointer; position: sticky; top: 0; }
-  tbody tr:hover { background: var(--bg-soft); }
-  td.num, th.num { text-align: right; font-family: var(--mono); }
-
-  /* Lab chips */
-  .lab { font-family: var(--mono); font-size: 0.72rem; padding: 2px 8px; border-radius: 4px;
-    border: 1px solid currentColor; font-weight: 600; }
-  .lab-deepseek { color: #5b8cff; } .lab-openai { color: #19c37d; } .lab-anthropic { color: #d97757; }
-  .lab-google { color: #ea4335; } .lab-glm { color: #8a63d2; } .lab-kimi { color: #ff6f61; }
-  .lab-qwen { color: #6a5acd; } .lab-xiaomi { color: #ff6900; } .lab-stepfun { color: #00b8d9; }
-  .lab-mistral { color: #ff7000; } .lab-llama { color: #0668e1; } .lab-nvidia { color: #76b900; }
-  .lab-minimax { color: #e94f9e; }
-
-  /* Model card */
-  .model-card { background: var(--bg-card); border: 1px solid var(--line); border-radius: 12px;
-    padding: 24px; margin: 24px 0; }
-  .spec-strip { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 18px; }
-  .spec { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 6px; padding: 8px 12px; }
-  .spec b { display: block; font-family: var(--mono); font-size: 0.68rem; color: var(--ink-faint);
-    text-transform: uppercase; letter-spacing: 0.05em; }
-  .spec span { font-family: var(--mono); font-size: 0.95rem; }
-  .sources { font-size: 0.82rem; color: var(--ink-faint); margin-top: 14px; }
-  .sources a { margin-right: 12px; }
-
-  /* Figures */
-  figure { margin: 20px 0; background: var(--bg-soft); border: 1px solid var(--line);
-    border-radius: 10px; padding: 18px; }
-  figure svg { display: block; width: 100%; height: auto; }
-  figcaption { font-size: 0.85rem; color: var(--ink-soft); margin-top: 10px; }
-  figcaption b { color: var(--accent); }
-
-  .callout { border: 1px solid var(--line); border-left: 4px solid var(--accent-2);
-    background: var(--bg-soft); border-radius: 8px; padding: 12px 16px; margin: 16px 0; font-size: 0.92rem; }
-  .tag-claimed { color: var(--warn); } .tag-measured { color: var(--accent-3); }
-  .tag-inferred { color: var(--accent-2); }
-
-  /* SVG shared styles */
-  .svg-box { fill: var(--bg-card); stroke: var(--line); stroke-width: 1.5; rx: 6; }
-  .svg-accent { fill: none; stroke: var(--accent); stroke-width: 2; }
-  .svg-accent2 { fill: none; stroke: var(--accent-2); stroke-width: 2; }
-  .svg-label { fill: var(--ink); font-family: var(--mono); font-size: 12px; }
-  .svg-faint { fill: var(--ink-soft); font-family: var(--mono); font-size: 11px; }
-  .svg-flow { stroke: var(--ink-soft); stroke-width: 1.5; fill: none; marker-end: url(#arrow); }
-
-  footer { border-top: 1px solid var(--line); margin-top: 64px; padding: 28px 0;
-    color: var(--ink-faint); font-size: 0.85rem; }
-  nav.toc { position: sticky; top: 0; background: var(--bg); border-bottom: 1px solid var(--line);
-    padding: 10px 0; font-family: var(--mono); font-size: 0.82rem; z-index: 10; overflow-x: auto; white-space: nowrap; }
-  nav.toc a { margin-right: 18px; color: var(--ink-soft); }
+  [data-theme="light"]{--bg:#f7f8fa;--bg-soft:#eef1f5;--bg-card:#fff;--surface-2:#f0f3f7;--ink:#16202b;--ink-soft:#4a5763;--ink-faint:#8a96a3;--line:#dde3ea;--accent:#2f5fd6;--accent-2:#d48828;--red:#c0392b;}
+  *{box-sizing:border-box;} html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--text);line-height:1.7;font-size:16px;}
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px;}
+  h1,h2,h3,h4{font-family:var(--display);line-height:1.25;letter-spacing:-0.01em;}
+  h1{font-size:2.4rem;margin:0 0 8px;}
+  h2{font-size:1.7rem;margin:56px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--line);}
+  h3{font-size:1.25rem;margin:32px 0 10px;}
+  h4{font-size:1.02rem;margin:20px 0 6px;color:var(--ink-soft);}
+  a{color:var(--accent-2);text-decoration:none;} a:hover{text-decoration:underline;}
+  code,.mono{font-family:var(--mono);font-size:0.9em;}
+  p{margin:10px 0;}
+  header.hero{background:linear-gradient(135deg,var(--bg-soft),var(--bg));border-bottom:1px solid var(--line);padding:48px 0 36px;}
+  .eyebrow{font-family:var(--mono);color:var(--accent);text-transform:uppercase;letter-spacing:0.18em;font-size:0.78rem;}
+  .thesis{color:var(--ink-soft);max-width:780px;font-size:1.1rem;margin-top:12px;}
+  .meta-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;}
+  .pill{font-family:var(--mono);font-size:0.76rem;background:var(--bg-card);border:1px solid var(--line);border-radius:999px;padding:5px 12px;color:var(--ink-soft);}
+  .toggle{position:fixed;top:16px;right:16px;z-index:20;cursor:pointer;background:var(--bg-card);border:1px solid var(--line);color:var(--ink);border-radius:999px;padding:8px 14px;font-family:var(--mono);font-size:0.8rem;}
+  .summary{background:var(--bg-card);border:1px solid var(--line);border-left:4px solid var(--accent);border-radius:8px;padding:20px 24px;margin:24px 0;}
+  .summary ul{margin:6px 0 0;padding-left:20px;} .summary li{margin:9px 0;}
+  .tbl-scroll{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:8px;}
+  table{border-collapse:collapse;width:100%;font-size:0.88rem;}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--line);white-space:nowrap;}
+  th{background:var(--bg-soft);font-family:var(--mono);font-size:0.72rem;letter-spacing:0.04em;color:var(--ink-soft);cursor:pointer;position:sticky;top:0;}
+  tbody tr:hover{background:var(--bg-soft);}
+  td.num,th.num{text-align:right;font-family:var(--mono);}
+  .lab{font-family:var(--mono);font-size:0.72rem;padding:2px 7px;border-radius:4px;border:1px solid currentColor;font-weight:600;}
+  .lab-deepseek{color:#5b8cff;}.lab-openai{color:#19c37d;}.lab-anthropic{color:#d97757;}.lab-google{color:#ea4335;}.lab-glm{color:#8a63d2;}.lab-kimi{color:#ff6f61;}.lab-qwen{color:#6a5acd;}.lab-xiaomi{color:#ff6900;}.lab-stepfun{color:#00b8d9;}.lab-mistral{color:#ff7000;}.lab-llama{color:#0668e1;}.lab-nvidia{color:#76b900;}.lab-minimax{color:#e94f9e;}
+  .model-card{background:var(--bg-card);border:1px solid var(--line);border-radius:12px;padding:24px;margin:24px 0;}
+  .spec-strip{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 18px;}
+  .spec{background:var(--bg-soft);border:1px solid var(--line);border-radius:6px;padding:8px 12px;}
+  .spec b{display:block;font-family:var(--mono);font-size:0.66rem;color:var(--ink-faint);letter-spacing:0.05em;}
+  .spec span{font-family:var(--mono);font-size:0.92rem;}
+  .sources{font-size:0.8rem;color:var(--ink-faint);margin-top:14px;}
+  .sources a{margin-right:12px;}
+  figure{margin:20px 0;background:var(--bg-soft);border:1px solid var(--line);border-radius:10px;padding:18px;overflow-x:auto;}
+  figure svg{display:block;width:100%;height:auto;}
+  figcaption{font-size:0.84rem;color:var(--ink-soft);margin-top:10px;}
+  figcaption b{color:var(--accent);}
+  .callout{border:1px solid var(--line);border-left:4px solid var(--accent-2);background:var(--bg-soft);border-radius:8px;padding:12px 16px;margin:16px 0;font-size:0.9rem;}
+  .tag-claimed{color:var(--warn);font-size:0.82em;} .tag-measured{color:var(--accent-3);font-size:0.82em;} .tag-inferred{color:var(--accent-2);font-size:0.82em;}
+  .svg-box{fill:var(--bg-card);stroke:var(--line);stroke-width:1.5;}
+  .svg-label{fill:var(--ink);font-family:var(--mono);font-size:12px;}
+  .svg-faint{fill:var(--ink-soft);font-family:var(--mono);font-size:11px;}
+  .svg-flow{stroke:var(--ink-soft);stroke-width:1.5;fill:none;marker-end:url(#arrow);}
+  footer{border-top:1px solid var(--line);margin-top:64px;padding:28px 0;color:var(--ink-faint);font-size:0.84rem;}
+  nav.toc{position:sticky;top:0;background:var(--bg);border-bottom:1px solid var(--line);padding:10px 0;font-family:var(--mono);font-size:0.8rem;z-index:10;overflow-x:auto;white-space:nowrap;}
+  nav.toc a{margin-right:16px;color:var(--ink-soft);}
+  .unverified{color:var(--ink-faint);font-style:italic;}
+  .arrow-def{position:absolute;}
 </style>
 </head>
 <body>
-<div class="toggle" onclick="toggleTheme()">◐ theme</div>
+<div class="toggle" onclick="toggleTheme()">◐ 主题</div>
 
 <header class="hero">
   <div class="wrap">
-    <div class="eyebrow">LLM Architecture & Capability Tracker</div>
+    <div class="eyebrow">{{EYEBROW}}</div>
     <h1>{{REPORT_TITLE}}</h1>
     <p class="thesis">{{ONE_LINE_THESIS}}</p>
     <div class="meta-row">
-      <span class="pill">Snapshot {{SNAPSHOT_VERSION}}</span>
-      <span class="pill">Generated {{SNAPSHOT_DATE}}</span>
-      <span class="pill">{{N_MODELS}} models tracked</span>
-      <span class="pill">Sources: tech reports · configs · OpenRouter · Raschka</span>
+      <span class="pill">{{PILL_SNAPSHOT}}</span>
+      <span class="pill">{{PILL_DATE}}</span>
+      <span class="pill">{{PILL_N_MODELS}}</span>
+      <span class="pill">{{PILL_SOURCES}}</span>
     </div>
   </div>
 </header>
 
-<nav class="toc">
-  <div class="wrap">
-    <a href="#summary">Summary</a>
-    <a href="#glance">At a glance</a>
-    <a href="#openrouter">OpenRouter</a>
-    <a href="#deepdives">Deep dives</a>
-    <a href="#synthesis">Synthesis</a>
-    <a href="#delta">What changed</a>
-    <a href="#methodology">Methodology</a>
-  </div>
-</nav>
+<nav class="toc"><div class="wrap">
+  <a href="#summary">{{NAV_SUMMARY}}</a>
+  <a href="#glance">{{NAV_GLANCE}}</a>
+  <a href="#openrouter">{{NAV_OPENROUTER}}</a>
+  <a href="#deepdives">{{NAV_DEEPDIVES}}</a>
+  <a href="#capability">{{NAV_CAPABILITY}}</a>
+  <a href="#synthesis">{{NAV_SYNTHESIS}}</a>
+  <a href="#kv">{{NAV_KV}}</a>
+  <a href="#delta">{{NAV_DELTA}}</a>
+  <a href="#method">{{NAV_METHOD}}</a>
+</div></nav>
 
 <main class="wrap">
 
-  <!-- ============ EXECUTIVE SUMMARY ============ -->
-  <section id="summary">
-    <h2>Executive summary</h2>
-    <div class="summary">
-      <ul>
-        <li>{{HEADLINE_1}}</li>
-        <li>{{HEADLINE_2}}</li>
-        <li>{{HEADLINE_3}}</li>
-        <li>{{HEADLINE_4}}</li>
-      </ul>
-    </div>
-  </section>
+<!-- 摘要 -->
+<section id="summary">
+  <h2>{{SECTION_SUMMARY}}</h2>
+  <div class="summary"><ul>
+    {{SUMMARY_BULLETS}}
+  </ul></div>
+</section>
 
-  <!-- ============ AT A GLANCE (roster spec table) ============ -->
-  <section id="glance">
-    <h2>The landscape at a glance</h2>
-    <p>{{GLANCE_INTRO}}</p>
-    <div class="tbl-scroll">
-      <table id="roster">
-        <thead>
-          <tr>
-            <th onclick="sortTable(0)">Model</th>
-            <th onclick="sortTable(1)">Lab</th>
-            <th onclick="sortTable(2)">Released</th>
-            <th class="num" onclick="sortTable(3)">Total</th>
-            <th class="num" onclick="sortTable(4)">Active</th>
-            <th onclick="sortTable(5)">Attention</th>
-            <th onclick="sortTable(6)">MoE</th>
-            <th class="num" onclick="sortTable(7)">Context</th>
-            <th onclick="sortTable(8)">License</th>
-            <th class="num" onclick="sortTable(9)">$/1M in</th>
-            <th class="num" onclick="sortTable(10)">$/1M out</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- CLONE ONE ROW PER MODEL -->
-          <tr>
-            <td><b>{{MODEL_NAME}}</b></td>
-            <td><span class="lab lab-deepseek">{{LAB}}</span></td>
-            <td>{{RELEASE}}</td>
-            <td class="num">{{TOTAL}}</td>
-            <td class="num">{{ACTIVE}}</td>
-            <td>{{ATTENTION}}</td>
-            <td>{{MOE}}</td>
-            <td class="num">{{CONTEXT}}</td>
-            <td>{{LICENSE}}</td>
-            <td class="num">{{PRICE_IN}}</td>
-            <td class="num">{{PRICE_OUT}}</td>
-          </tr>
-          <!-- /CLONE -->
-        </tbody>
-      </table>
-    </div>
-  </section>
+<!-- 规格总览 -->
+<section id="glance">
+  <h2>{{SECTION_GLANCE}}</h2>
+  <p>{{GLANCE_INTRO}}</p>
+  <div class="tbl-scroll"><table id="roster"><thead><tr>
+    <th onclick="sortTable(0)">{{COL_MODEL}}</th><th onclick="sortTable(1)">{{COL_LAB}}</th><th onclick="sortTable(2)">{{COL_RELEASE}}</th>
+    <th class="num" onclick="sortTable(3)">{{COL_TOTAL}}</th><th class="num" onclick="sortTable(4)">{{COL_ACTIVE}}</th>
+    <th onclick="sortTable(5)">{{COL_ATTENTION}}</th><th onclick="sortTable(6)">{{COL_MOE}}</th>
+    <th class="num" onclick="sortTable(7)">{{COL_CONTEXT}}</th>
+    <th onclick="sortTable(8)">{{COL_LICENSE}}</th><th class="num" onclick="sortTable(9)">{{COL_PRICE_IN}}</th><th class="num" onclick="sortTable(10)">{{COL_PRICE_OUT}}</th>
+  </tr></thead><tbody>
+    {{ROSTER_ROWS}}
+  </tbody></table></div>
+</section>
 
-  <!-- ============ OPENROUTER REALITY CHECK ============ -->
-  <section id="openrouter">
-    <h2>OpenRouter reality check</h2>
-    <div class="callout">Usage rank ≠ quality. A cheap preview or a single
-      high-volume app can vault a model to #1. Read this as "what developers run
-      right now", then verify quality on your own evals.</div>
-    <div class="tbl-scroll">
-      <table>
-        <thead><tr><th class="num">Rank</th><th>Model</th><th>Lab</th><th class="num">Weekly tokens</th><th>Why it's here</th></tr></thead>
-        <tbody>
-          <!-- CLONE PER TOP-USAGE MODEL -->
-          <tr><td class="num">{{RANK}}</td><td>{{MODEL_NAME}}</td><td>{{LAB}}</td><td class="num">{{WEEKLY}}</td><td>{{WHY}}</td></tr>
-          <!-- /CLONE -->
-        </tbody>
-      </table>
-    </div>
-  </section>
+<!-- OpenRouter -->
+<section id="openrouter">
+  <h2>{{SECTION_OPENROUTER}}</h2>
+  <div class="callout">{{OPENROUTER_CALLOUT}}</div>
+  <div class="tbl-scroll"><table><thead><tr><th class="num">{{COL_RANK}}</th><th>{{COL_MODEL}}</th><th>{{COL_LAB}}</th><th class="num">{{COL_WEEKLY}}</th><th>{{COL_WHY}}</th></tr></thead><tbody>
+    {{OPENROUTER_ROWS}}
+  </tbody></table></div>
+</section>
 
-  <!-- ============ ARCHITECTURE DEEP DIVES ============ -->
-  <section id="deepdives">
-    <h2>Architecture deep dives</h2>
+<!-- 架构深潜 -->
+<section id="deepdives">
+  <h2>{{SECTION_DEEPDIVES}}</h2>
+  {{MODEL_CARDS}}
+</section>
 
-    <!-- CLONE THIS MODEL CARD PER FLAGSHIP -->
-    <div class="model-card">
-      <h3><span class="lab lab-deepseek">{{LAB}}</span> &nbsp;{{MODEL_NAME}}</h3>
-      <div class="spec-strip">
-        <div class="spec"><b>Params</b><span>{{TOTAL}} / {{ACTIVE}} active</span></div>
-        <div class="spec"><b>Attention</b><span>{{ATTENTION}}</span></div>
-        <div class="spec"><b>MoE</b><span>{{MOE}}</span></div>
-        <div class="spec"><b>Context</b><span>{{CONTEXT}}</span></div>
-        <div class="spec"><b>Price /1M</b><span>${{PRICE_IN}} in · ${{PRICE_OUT}} out</span></div>
-        <div class="spec"><b>License</b><span>{{LICENSE}}</span></div>
-      </div>
+<!-- 能力对比 -->
+<section id="capability">
+  <h2>{{SECTION_CAPABILITY}}</h2>
+  <p>{{CAPABILITY_INTRO}}</p>
+  <div class="callout">{{CAPABILITY_CALLOUT}}</div>
 
-      <h4>What changed & why</h4>
-      <p>{{ARCH_ANALYSIS}}</p>
+  <div class="tbl-scroll">
+    <table>
+      <thead><tr>
+        <th>{{COL_MODEL}}</th><th class="num">{{COL_REASONING}}</th><th class="num">{{COL_CODING}}</th>
+        <th class="num">{{COL_AGENTIC}}</th><th class="num">{{COL_MATH}}</th>
+        <th class="num">{{COL_LONGCTX}}</th><th>{{COL_MM}}</th>
+      </tr></thead>
+      <tbody>
+        {{CAPABILITY_ROWS}}
+      </tbody>
+    </table>
+  </div>
 
-      <!-- Drop in the relevant SVG diagram(s) from the component library below.
-           Option A: Use {{ARCH_DIAGRAM_SVG}} placeholder for server-side injection.
-           Option B: Add data-diagram="diagram-id" to the figure, JS will auto-render. -->
-      <figure data-diagram="{{ARCH_DIAGRAM_ID}}"><div class="diagram-slot"></div><figcaption><b>Figure.</b> {{DIAGRAM_CAPTION}}</figcaption></figure>
+  <figure><div id="fig-capability"></div>
+    <figcaption><b>图.</b> {{CAPABILITY_CHART_CAPTION}}</figcaption></figure>
 
-      <h4>Capabilities</h4>
-      <p>{{CAPABILITY_ANALYSIS}} <span class="tag-claimed">[vendor-claimed]</span> /
-         <span class="tag-measured">[measured]</span> as labeled.</p>
+  <figure><div id="fig-cost"></div>
+    <figcaption><b>图.</b> {{COST_CHART_CAPTION}}</figcaption></figure>
 
-      <h4>Lineage</h4>
-      <p>{{LINEAGE}} → deltas: {{DELTAS}}.</p>
+  <h4>{{CAPABILITY_READOUT_TITLE}}</h4>
+  <p>{{CAPABILITY_READOUT}}</p>
+</section>
 
-      <div class="sources">Sources:
-        <a href="{{SRC_REPORT}}">tech report</a>
-        <a href="{{SRC_CONFIG}}">config.json</a>
-        <a href="{{SRC_OPENROUTER}}">OpenRouter</a>
-        <a href="{{SRC_RASCHKA}}">Raschka analysis</a>
-      </div>
-    </div>
-    <!-- /CLONE MODEL CARD -->
+<!-- 横向综合 -->
+<section id="synthesis">
+  <h2>{{SECTION_SYNTHESIS}}</h2>
 
-  </section>
+  <h3>{{SEC_KV_RACE}}</h3>
+  <p>{{KV_RACE_INTRO}}</p>
+  <figure><div id="fig-kv"></div>
+    <figcaption><b>图.</b> {{KV_CAPTION}}</figcaption></figure>
+  <p>{{KV_RACE_BODY}}</p>
 
-  <!-- ============ CROSS-CUTTING SYNTHESIS ============ -->
-  <section id="synthesis">
-    <h2>Cross-cutting analysis</h2>
+  <h3>{{SEC_TIMELINE}}</h3>
+  <figure><div id="fig-timeline"></div>
+    <figcaption><b>图.</b> {{TIMELINE_CAPTION}}</figcaption></figure>
 
-    <h3>The KV-cache & long-context efficiency race</h3>
-    <p>{{KV_RACE}}</p>
-    <figure data-diagram="kv-cache-comparison"><div class="diagram-slot"></div><figcaption><b>Figure.</b> KV-cache size vs context length across attention types.</figcaption></figure>
+  <h3>{{SEC_MOE_TREND}}</h3>
+  <p>{{MOE_TREND}}</p>
+  <figure><div id="fig-sparsity"></div>
+    <figcaption><b>图.</b> {{SPARSITY_CAPTION}}</figcaption></figure>
 
-    <h3>MoE sparsification & the shared-expert debate</h3>
-    <p>{{MOE_TREND}}</p>
+  <h3>{{SEC_ATTENTION_FORK}}</h3>
+  <p>{{ATTENTION_FORK}}</p>
 
-    <h3>The attention fork: MLA vs GQA vs linear vs sparse</h3>
-    <p>{{ATTENTION_FORK}}</p>
+  <h3>{{SEC_CONVERGENCE}}</h3>
+  <p>{{CONVERGENCE}}</p>
 
-    <h3>Convergence vs divergence</h3>
-    <p>{{CONVERGENCE}}</p>
+  <h3>{{SEC_ECONOMICS}}</h3>
+  <p>{{ECONOMICS}}</p>
+</section>
 
-    <h3>Economics: the cost-vs-capability frontier</h3>
-    <p>{{ECONOMICS}}</p>
-    <figure>{{COST_SCATTER_SVG}}<figcaption><b>Figure.</b> Price per 1M input tokens vs capability proxy; bubble size = usage.</figcaption></figure>
-  </section>
+<!-- 变化 -->
+<section id="delta">
+  <h2>{{SECTION_DELTA}}</h2>
+  <table>
+    <thead>
+      <tr><th>{{COL_MODEL}}</th><th>{{COL_CHANGE_TYPE}}</th><th>{{COL_CHANGE_SUMMARY}}</th></tr>
+    </thead>
+    <tbody>
+      {{DELTA_ROWS}}
+    </tbody>
+  </table>
+</section>
 
-  <!-- ============ WHAT CHANGED (delta) ============ -->
-  <section id="delta">
-    <h2>What changed since last snapshot</h2>
-    <div class="tbl-scroll">
-      <table>
-        <thead><tr><th>Model</th><th>Change</th><th>Summary</th></tr></thead>
-        <tbody>
-          <!-- CLONE PER DELTA -->
-          <tr><td>{{MODEL_NAME}}</td><td>{{CHANGE_TYPE}}</td><td>{{CHANGE_SUMMARY}}</td></tr>
-          <!-- /CLONE -->
-        </tbody>
-      </table>
-    </div>
-  </section>
-
-  <!-- ============ METHODOLOGY ============ -->
-  <section id="methodology">
-    <h2>Methodology & sources</h2>
-    <p>{{METHODOLOGY}}</p>
-    <ul>{{SOURCE_LIST}}</ul>
-  </section>
+<!-- 方法与来源 -->
+<section id="method">
+  <h2>{{SECTION_METHOD}}</h2>
+  <h3>{{SEC_SOURCE_HIERARCHY}}</h3>
+  <ol>
+    <li>{{SOURCE_1}}</li>
+    <li>{{SOURCE_2}}</li>
+    <li>{{SOURCE_3}}</li>
+  </ol>
+  <h3>{{SEC_CONFIDENCE}}</h3>
+  <p id="confidence-notes">{{METHODOLOGY}}</p>
+  <h3>{{SEC_SOURCES_BY_MODEL}}</h3>
+  <div class="sources">
+    {{SOURCE_LIST}}
+  </div>
+</section>
 
 </main>
 
-<footer>
-  <div class="wrap">
-    <p>Generated by the llm-architecture-tracker skill on {{SNAPSHOT_DATE}} (snapshot {{SNAPSHOT_VERSION}}).
-       Architecture facts drawn from primary technical reports and model configs; capabilities labeled
-       [vendor-claimed] vs [measured]; pricing from provider pages and OpenRouter (effective/cached where available).
-       Usage rankings reflect volume, not quality — verify on your own evaluations.</p>
-  </div>
-</footer>
+<footer><div class="wrap">
+  <p>{{FOOTER_TEXT}}</p>
+</div></footer>
 
-<!-- ====================================================================== -->
-<!-- REUSABLE SVG DIAGRAM COMPONENTS — copy a <svg> into a <figure> above,   -->
-<!-- retitle and re-annotate per model. They use the house CSS classes so    -->
-<!-- they re-theme automatically. Hidden here via the <template> tag.        -->
-<!-- ====================================================================== -->
-<template id="svg-components">
-
-  <!-- (1) TRANSFORMER BLOCK (Pre-Norm + MoE) -->
-  <svg id="diagram-transformer-block" viewBox="0 0 420 340" xmlns="http://www.w3.org/2000/svg" aria-label="Transformer block">
-    <defs><marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
-      <path d="M0,0 L6,3 L0,6 Z" fill="var(--ink-soft)"/></marker></defs>
-    <text x="210" y="20" text-anchor="middle" class="svg-label">Transformer Block (Pre-Norm)</text>
-    <line class="svg-flow" x1="210" y1="30" x2="210" y2="50"/>
-    <rect class="svg-box" x="140" y="50" width="140" height="28"/>
-    <text x="210" y="68" text-anchor="middle" class="svg-faint">RMSNorm</text>
-    <line class="svg-flow" x1="210" y1="78" x2="210" y2="98"/>
-    <rect class="svg-box" x="120" y="98" width="180" height="40"/>
-    <text x="210" y="123" text-anchor="middle" class="svg-label">Attention (MLA / GQA / …)</text>
-    <path class="svg-accent" d="M90,40 L90,128 L118,128" />
-    <circle cx="210" cy="158" r="10" fill="none" stroke="var(--accent)" stroke-width="2"/>
-    <text x="210" y="162" text-anchor="middle" class="svg-faint">+</text>
-    <line class="svg-flow" x1="210" y1="138" x2="210" y2="148"/>
-    <line class="svg-flow" x1="210" y1="168" x2="210" y2="188"/>
-    <rect class="svg-box" x="140" y="188" width="140" height="28"/>
-    <text x="210" y="206" text-anchor="middle" class="svg-faint">RMSNorm</text>
-    <line class="svg-flow" x1="210" y1="216" x2="210" y2="236"/>
-    <rect class="svg-box" x="110" y="236" width="200" height="44"/>
-    <text x="210" y="262" text-anchor="middle" class="svg-label">MoE FFN (router → top-K)</text>
-    <path class="svg-accent" d="M90,148 L90,300 L108,300" />
-    <circle cx="210" cy="300" r="10" fill="none" stroke="var(--accent)" stroke-width="2"/>
-    <text x="210" y="304" text-anchor="middle" class="svg-faint">+</text>
-    <line class="svg-flow" x1="210" y1="280" x2="210" y2="290"/>
-    <line class="svg-flow" x1="210" y1="310" x2="210" y2="330"/>
-    <text x="350" y="123" class="svg-faint">← annotate the</text>
-    <text x="350" y="138" class="svg-faint">model's twist</text>
-  </svg>
-
-  <!-- (2) MLA — latent-compressed KV -->
-  <svg id="diagram-mla" viewBox="0 0 460 230" xmlns="http://www.w3.org/2000/svg" aria-label="Multi-head Latent Attention">
-    <text x="230" y="20" text-anchor="middle" class="svg-label">MLA — compress KV to a latent, cache that</text>
-    <rect class="svg-box" x="20" y="50" width="80" height="34"/>
-    <text x="60" y="71" text-anchor="middle" class="svg-faint">hidden x</text>
-    <line class="svg-flow" x1="100" y1="67" x2="140" y2="67"/>
-    <rect class="svg-box" x="140" y="50" width="90" height="34" style="stroke:var(--accent)"/>
-    <text x="185" y="71" text-anchor="middle" class="svg-faint">down-proj W_DKV</text>
-    <line class="svg-flow" x1="230" y1="67" x2="270" y2="67"/>
-    <rect class="svg-box" x="270" y="50" width="110" height="34" style="stroke:var(--accent-2)"/>
-    <text x="325" y="65" text-anchor="middle" class="svg-faint">latent c_kv</text>
-    <text x="325" y="79" text-anchor="middle" class="svg-faint">(dim≈512) → CACHE</text>
-    <line class="svg-flow" x1="325" y1="84" x2="325" y2="120"/>
-    <rect class="svg-box" x="270" y="120" width="110" height="34" style="stroke:var(--accent)"/>
-    <text x="325" y="141" text-anchor="middle" class="svg-faint">up-proj → K,V</text>
-    <line class="svg-flow" x1="270" y1="137" x2="210" y2="137"/>
-    <rect class="svg-box" x="110" y="120" width="100" height="34"/>
-    <text x="160" y="141" text-anchor="middle" class="svg-label">attention</text>
-    <text x="230" y="200" text-anchor="middle" class="svg-faint">stored latent ≪ full K/V → ~5–10× smaller KV cache vs GQA</text>
-  </svg>
-
-  <!-- (3) GQA — head grouping -->
-  <svg id="diagram-gqa" viewBox="0 0 440 200" xmlns="http://www.w3.org/2000/svg" aria-label="Grouped-Query Attention">
-    <text x="220" y="20" text-anchor="middle" class="svg-label">GQA — query heads share K/V groups</text>
-    <!-- Q heads -->
-    <g>
-      <rect class="svg-box" x="20" y="50" width="34" height="26"/><text x="37" y="68" text-anchor="middle" class="svg-faint">Q1</text>
-      <rect class="svg-box" x="60" y="50" width="34" height="26"/><text x="77" y="68" text-anchor="middle" class="svg-faint">Q2</text>
-      <rect class="svg-box" x="100" y="50" width="34" height="26"/><text x="117" y="68" text-anchor="middle" class="svg-faint">Q3</text>
-      <rect class="svg-box" x="140" y="50" width="34" height="26"/><text x="157" y="68" text-anchor="middle" class="svg-faint">Q4</text>
-    </g>
-    <line class="svg-flow" x1="77" y1="76" x2="77" y2="120"/>
-    <line class="svg-flow" x1="157" y1="76" x2="157" y2="120"/>
-    <rect class="svg-box" x="40" y="120" width="74" height="26" style="stroke:var(--accent-2)"/>
-    <text x="77" y="138" text-anchor="middle" class="svg-faint">KV group A</text>
-    <rect class="svg-box" x="120" y="120" width="74" height="26" style="stroke:var(--accent-2)"/>
-    <text x="157" y="138" text-anchor="middle" class="svg-faint">KV group B</text>
-    <text x="320" y="80" class="svg-faint">n_kv = n_q / group</text>
-    <text x="320" y="100" class="svg-faint">fewer KV heads →</text>
-    <text x="320" y="116" class="svg-faint">smaller cache, ~MHA quality</text>
-  </svg>
-
-  <!-- (4) MoE ROUTING -->
-  <svg id="diagram-moe-routing" viewBox="0 0 460 240" xmlns="http://www.w3.org/2000/svg" aria-label="MoE routing">
-    <text x="230" y="20" text-anchor="middle" class="svg-label">MoE routing — total ≫ active</text>
-    <rect class="svg-box" x="30" y="60" width="70" height="30"/><text x="65" y="80" text-anchor="middle" class="svg-faint">token</text>
-    <line class="svg-flow" x1="100" y1="75" x2="140" y2="75"/>
-    <rect class="svg-box" x="140" y="58" width="70" height="34" style="stroke:var(--accent)"/>
-    <text x="175" y="79" text-anchor="middle" class="svg-faint">router</text>
-    <!-- experts -->
-    <g>
-      <rect class="svg-box" x="260" y="30" width="34" height="22"/><text x="277" y="45" text-anchor="middle" class="svg-faint">E1</text>
-      <rect class="svg-box" x="260" y="60" width="34" height="22" style="stroke:var(--accent)"/><text x="277" y="75" text-anchor="middle" class="svg-faint">E2*</text>
-      <rect class="svg-box" x="260" y="90" width="34" height="22"/><text x="277" y="105" text-anchor="middle" class="svg-faint">E3</text>
-      <rect class="svg-box" x="260" y="120" width="34" height="22" style="stroke:var(--accent)"/><text x="277" y="135" text-anchor="middle" class="svg-faint">E4*</text>
-      <rect class="svg-box" x="260" y="150" width="34" height="22"/><text x="277" y="165" text-anchor="middle" class="svg-faint">…N</text>
-    </g>
-    <path class="svg-flow" d="M210,75 L258,71"/>
-    <path class="svg-flow" d="M210,75 L258,131"/>
-    <rect class="svg-box" x="260" y="190" width="120" height="26" style="stroke:var(--accent-2)"/>
-    <text x="320" y="208" text-anchor="middle" class="svg-faint">shared expert (always on)</text>
-    <path class="svg-flow" d="M175,92 L175,203 L258,203"/>
-    <text x="340" y="71" class="svg-faint">* top-K routed</text>
-    <text x="340" y="140" class="svg-faint">activate per token</text>
-  </svg>
-
-  <!-- (5) KV-CACHE COMPARISON BAR (schematic; set bar heights from data) -->
-  <svg id="diagram-kv-cache-comparison" viewBox="0 0 460 240" xmlns="http://www.w3.org/2000/svg" aria-label="KV cache comparison">
-    <text x="230" y="20" text-anchor="middle" class="svg-label">KV-cache size at 128K context (schematic)</text>
-    <line x1="60" y1="200" x2="440" y2="200" stroke="var(--line)"/>
-    <line x1="60" y1="40" x2="60" y2="200" stroke="var(--line)"/>
-    <!-- MHA -->
-    <rect x="90" y="50" width="48" height="150" fill="var(--accent)" opacity="0.85"/><text x="114" y="218" text-anchor="middle" class="svg-faint">MHA</text>
-    <!-- GQA -->
-    <rect x="170" y="120" width="48" height="80" fill="var(--accent)" opacity="0.7"/><text x="194" y="218" text-anchor="middle" class="svg-faint">GQA</text>
-    <!-- MLA -->
-    <rect x="250" y="170" width="48" height="30" fill="var(--accent-2)" opacity="0.9"/><text x="274" y="218" text-anchor="middle" class="svg-faint">MLA</text>
-    <!-- Linear -->
-    <rect x="330" y="184" width="48" height="16" fill="var(--accent-3)" opacity="0.9"/><text x="354" y="218" text-anchor="middle" class="svg-faint">Linear</text>
-    <text x="46" y="55" text-anchor="end" class="svg-faint">high</text>
-    <text x="46" y="198" text-anchor="end" class="svg-faint">low</text>
-  </svg>
-
-</template>
+<svg class="arrow-def" width="0" height="0">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--ink-soft)" />
+    </marker>
+  </defs>
+</svg>
 
 <script>
-  // =========================================================================
-  // Theme toggle
-  // =========================================================================
-  function toggleTheme() {
-    const html = document.documentElement;
-    html.setAttribute('data-theme', html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
-    try { localStorage.setItem('llm-tracker-theme', html.getAttribute('data-theme')); } catch(e) {}
-  }
-
-  // Restore saved theme
-  (function() {
-    try {
-      const saved = localStorage.getItem('llm-tracker-theme');
-      if (saved) document.documentElement.setAttribute('data-theme', saved);
-    } catch(e) {}
-  })();
-
-  // =========================================================================
-  // Diagram rendering system — clones SVGs from #svg-components template
-  // into any element with data-diagram="diagram-id"
-  // =========================================================================
-  const DIAGRAM_REGISTRY = {
-    'transformer-block': 'diagram-transformer-block',
-    'mla': 'diagram-mla',
-    'gqa': 'diagram-gqa',
-    'moe-routing': 'diagram-moe-routing',
-    'kv-cache-comparison': 'diagram-kv-cache-comparison'
+  /* ---- themable SVG chart helpers (no dependencies) ---- */
+  const CH = {
+    PALETTE: ['#4f8cff','#ff9f43','#26c281','#ee5a6f','#a569bd','#1abc9c','#f1c40f','#95a5a6','#e67e22','#3498db'],
+    c(v){return getComputedStyle(document.documentElement).getPropertyValue(v).trim();},
+    esc(s){return String(s).replace(/[<&>]/g,m=>({'<':'&lt;','&':'&amp;','>':'&gt;'}[m]));},
+    groupedBars(data, series, opts={}){
+      const {w=720,h=360,max=100,unit='',title=''} = opts;
+      const ink = this.c('--ink'), soft = this.c('--ink-soft'), line = this.c('--line');
+      const pad = {l:140,r:20,t:title?40:30,b:80}, iw = w - pad.l - pad.r, ih = h - pad.t - pad.b;
+      const groupW = iw / data.length, barW = Math.min(24, (groupW - 8) / series.length);
+      const sy = v => pad.t + ih - v/max * ih;
+      let s = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="font-family:var(--mono);width:100%;" role="img" aria-label="${this.esc(title||'grouped bar chart')}"><title>${this.esc(title||'grouped bar chart')}</title>`;
+      if (title) s += `<text x="${w/2}" y="24" text-anchor="middle" fill="${ink}" font-size="14" font-weight="600">${this.esc(title)}</text>`;
+      for (let i=0;i<=5;i++){
+        const v = max * i/5, y = sy(v);
+        s += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+iw}" y2="${y}" stroke="${line}" stroke-dasharray="${i===5?'':'3,3'}"/>`;
+        s += `<text x="${pad.l-8}" y="${y+4}" text-anchor="end" fill="${soft}" font-size="11">${v}${unit}</text>`;
+      }
+      data.forEach((d, gi) => {
+        const gx = pad.l + gi*groupW + groupW/2;
+        s += `<text x="${gx}" y="${h-45}" text-anchor="middle" fill="${soft}" font-size="11" transform="rotate(-30,${gx},${h-45})">${this.esc(d.group)}</text>`;
+        series.forEach((sr, si) => {
+          const val = d.values[si] ?? 0;
+          const bx = gx - (series.length*barW)/2 + si*barW;
+          const by = sy(val);
+          s += `<rect x="${bx}" y="${by}" width="${barW-2}" height="${pad.t+ih - by}" fill="${sr.color}" rx="2" opacity="0.85"/>`;
+        });
+      });
+      series.forEach((sr, si) => {
+        const lx = pad.l + (si % 4) * 150;
+        const ly = pad.t - 12 + Math.floor(si/4) * 18;
+        s += `<rect x="${lx}" y="${ly}" width="12" height="12" fill="${sr.color}" rx="2"/>`;
+        s += `<text x="${lx+18}" y="${ly+10}" fill="${soft}" font-size="10">${this.esc(sr.label)}</text>`;
+      });
+      s += `</svg>`;
+      return s;
+    },
+    scatter(points, opts={}){
+      const {w=720,h=420,xlabel='',ylabel='',title='',xlog=false,ylog=false,xmax=null,ymax=null,parityLine=false,quadrants=false,xMid=null,yMid=null} = opts;
+      const ink = this.c('--ink'), soft = this.c('--ink-soft'), line = this.c('--line'), red = this.c('--red');
+      const pad = {l:70,r:20,t:title?40:30,b:60}, iw = w-pad.l-pad.r, ih = h-pad.t-pad.b;
+      const validPts = points.filter(p=>p.x>0 && p.y>0);
+      if (!validPts.length) return '';
+      const xs = validPts.map(p=>p.x), ys = validPts.map(p=>p.y);
+      const xmaxV = xmax ?? (xlog ? Math.max(...xs)*1.3 : Math.max(...xs)*1.15);
+      const ymaxV = ymax ?? (ylog ? Math.max(...ys)*1.3 : Math.max(...ys)*1.1);
+      const xmin = xlog ? Math.min(...xs)*0.7 : 0;
+      const ymin = ylog ? Math.min(...ys)*0.7 : 0;
+      const sx = v => pad.l + (xlog ? (Math.log10(Math.max(v,xmin))-Math.log10(xmin))/(Math.log10(xmaxV)-Math.log10(xmin)) : (v-xmin)/(xmaxV-xmin)) * iw;
+      const sy = v => pad.t + ih - (ylog ? (Math.log10(Math.max(v,ymin))-Math.log10(ymin))/(Math.log10(ymaxV)-Math.log10(ymin)) : (v-ymin)/(ymaxV-ymin)) * ih;
+      let s = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="font-family:var(--mono);width:100%;" role="img" aria-label="${this.esc(title||ylabel+' vs '+xlabel)}"><title>${this.esc(title||ylabel+' vs '+xlabel)}</title>`;
+      if (title) s += `<text x="${w/2}" y="24" text-anchor="middle" fill="${ink}" font-size="14" font-weight="600">${this.esc(title)}</text>`;
+      for(let i=0;i<=5;i++){
+        const v = ymin + (ymaxV-ymin)*i/5;
+        const y = sy(v);
+        s += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+iw}" y2="${y}" stroke="${line}" stroke-dasharray="3,3" opacity="0.5"/>`;
+        s += `<text x="${pad.l-8}" y="${y+4}" text-anchor="end" fill="${soft}" font-size="11">${v>=1000?(v/1000).toFixed(0)+'B':v.toFixed(0)}</text>`;
+      }
+      s += `<line x1="${pad.l}" y1="${pad.t+ih}" x2="${pad.l+iw}" y2="${pad.t+ih}" stroke="${line}"/>`;
+      s += `<line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${pad.t+ih}" stroke="${line}"/>`;
+      if (parityLine) {
+        s += `<line x1="${sx(Math.max(xmin,ymin))}" y1="${sy(Math.max(xmin,ymin))}" x2="${sx(Math.min(xmaxV,ymaxV))}" y2="${sy(Math.min(xmaxV,ymaxV))}" stroke="${soft}" stroke-dasharray="4,4" stroke-width="1.5"/>`;
+        s += `<text x="${sx(Math.min(xmaxV,ymaxV))-8}" y="${sy(Math.min(xmaxV,ymaxV))-8}" text-anchor="end" fill="${soft}" font-size="10">Dense parity</text>`;
+      }
+      if (quadrants) {
+        const xm = xMid || (xmin+xmaxV)/2, ym = yMid || (ymin+ymaxV)/2;
+        s += `<line x1="${sx(xm)}" y1="${pad.t}" x2="${sx(xm)}" y2="${pad.t+ih}" stroke="${soft}" stroke-dasharray="2,3" opacity="0.6"/>`;
+        s += `<line x1="${pad.l}" y1="${sy(ym)}" x2="${pad.l+iw}" y2="${sy(ym)}" stroke="${soft}" stroke-dasharray="2,3" opacity="0.6"/>`;
+        s += `<text x="${pad.l+iw-10}" y="${pad.t+20}" text-anchor="end" fill="${soft}" font-size="10" opacity="0.7">frontier premium</text>`;
+        s += `<text x="${pad.l+10}" y="${pad.t+20}" fill="${this.c('--accent-3')}" font-size="10" font-weight="600" opacity="0.8">best value</text>`;
+        s += `<text x="${pad.l+10}" y="${pad.t+ih-10}" fill="${soft}" font-size="10" opacity="0.7">cheap &amp; weak</text>`;
+        s += `<text x="${pad.l+iw-10}" y="${pad.t+ih-10}" text-anchor="end" fill="${soft}" font-size="10" opacity="0.7">expensive &amp; weak</text>`;
+      }
+      s += `<text x="${pad.l+iw/2}" y="${h-15}" text-anchor="middle" fill="${soft}" font-size="12">${this.esc(xlabel)}</text>`;
+      s += `<text x="20" y="${pad.t+ih/2}" text-anchor="middle" fill="${soft}" font-size="12" transform="rotate(-90,20,${pad.t+ih/2})">${this.esc(ylabel)}</text>`;
+      validPts.forEach(p=>{
+        const cx=sx(p.x),cy=sy(p.y), r=p.r||5;
+        s += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${p.color||this.PALETTE[0]}" opacity="0.85" stroke="${this.c('--bg')}" stroke-width="1"/>`;
+        if (p.label) s += `<text x="${cx+(p.labelDx||6)}" y="${cy+(p.labelDy||-4)}" fill="${ink}" font-size="10"><title>${this.esc(p.label)}</title>${this.esc(p.label.length>16?p.label.slice(0,14)+'…':p.label)}</text>`;
+      });
+      s += `</svg>`;
+      return s;
+    },
+    lines(series, opts={}){
+      const {w=720,h=380,xlabel='context (tokens)',ylabel='KV cache (GB)',title='',xlog=true,ylog=false,annotate=[32768,131072,1048576]} = opts;
+      const ink = this.c('--ink'), soft = this.c('--ink-soft'), line = this.c('--line'), red = this.c('--red');
+      const pad = {l:70,r:140,t:title?40:30,b:50}, iw=w-pad.l-pad.r, ih=h-pad.t-pad.b;
+      if (!series.length || !series[0].points.length) return '';
+      const all = series.flatMap(s=>s.points);
+      const xs = all.map(p=>p[0]).filter(x=>x>0), ys = all.map(p=>p[1]).filter(y=>y>0);
+      const xmaxV = Math.max(...xs)*1.05, xminV = xlog ? Math.min(...xs)*0.8 : 0;
+      const ymaxV = Math.max(...ys)*1.15, yminV = ylog ? Math.min(...ys)*0.8 : 0;
+      const sx = v => pad.l + (xlog ? (Math.log10(Math.max(v,xminV))-Math.log10(xminV))/(Math.log10(xmaxV)-Math.log10(xminV)) : (v-xminV)/(xmaxV-xminV)) * iw;
+      const sy = v => pad.t + ih - (ylog ? (Math.log10(Math.max(v,yminV))-Math.log10(yminV))/(Math.log10(ymaxV)-Math.log10(yminV)) : (v-yminV)/(ymaxV-yminV)) * ih;
+      let s = `<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg" style="font-family:var(--mono);width:100%;" role="img" aria-label="${this.esc(title||ylabel)}"><title>${this.esc(title||ylabel)}</title>`;
+      if (title) s += `<text x="${w/2}" y="24" text-anchor="middle" fill="${ink}" font-size="14" font-weight="600">${this.esc(title)}</text>`;
+      for (let i=0;i<=5;i++){
+        const v = yminV + (ymaxV-yminV)*i/5;
+        const y=sy(v);
+        s += `<line x1="${pad.l}" y1="${y}" x2="${pad.l+iw}" y2="${y}" stroke="${line}" stroke-dasharray="${i===5?'':'3,3'}" opacity="0.5"/>`;
+        s += `<text x="${pad.l-8}" y="${y+4}" text-anchor="end" fill="${soft}" font-size="11">${v.toFixed(1)}</text>`;
+      }
+      const twentyGB = 20;
+      if (twentyGB < ymaxV) {
+        s += `<line x1="${pad.l}" y1="${sy(twentyGB)}" x2="${pad.l+iw}" y2="${sy(twentyGB)}" stroke="${red}" stroke-dasharray="4,3" stroke-width="1" opacity="0.6"/>`;
+        s += `<text x="${pad.l+iw-8}" y="${sy(twentyGB)-4}" text-anchor="end" fill="${red}" font-size="10" opacity="0.8">20 GB (typical H100 budget)</text>`;
+      }
+      (annotate||[]).forEach(ax=>{
+        if (ax < xminV || ax > xmaxV) return;
+        const x = sx(ax);
+        s += `<line x1="${x}" y1="${pad.t}" x2="${x}" y2="${pad.t+ih}" stroke="${soft}" stroke-dasharray="2,3" opacity="0.5"/>`;
+        const label = ax >= 1000000 ? `${(ax/1000000).toFixed(0)}M` : `${(ax/1000).toFixed(0)}K`;
+        s += `<text x="${x}" y="${pad.t+14}" text-anchor="middle" fill="${soft}" font-size="10">${label}</text>`;
+      });
+      const xticks = xlog ? [8192,16384,32768,65536,131072,262144,524288,1048576,2097152].filter(x=>x>=xminV&&x<=xmaxV) : Array.from({length:5},(_,i)=>xminV+(xmaxV-xminV)*i/4);
+      xticks.forEach(tick=>{
+        const x=sx(tick);
+        s += `<line x1="${x}" y1="${pad.t+ih-3}" x2="${x}" y2="${pad.t+ih+3}" stroke="${line}"/>`;
+        const label = tick >= 1000000 ? `${(tick/1000000).toFixed(0)}M` : `${(tick/1000).toFixed(0)}K`;
+        s += `<text x="${x}" y="${h-25}" text-anchor="middle" fill="${soft}" font-size="10">${label}</text>`;
+      });
+      s += `<line x1="${pad.l}" y1="${pad.t+ih}" x2="${pad.l+iw}" y2="${pad.t+ih}" stroke="${line}"/>`;
+      s += `<line x1="${pad.l}" y1="${pad.t}" x2="${pad.l}" y2="${pad.t+ih}" stroke="${line}"/>`;
+      s += `<text x="${pad.l+iw/2}" y="${h-8}" text-anchor="middle" fill="${soft}" font-size="12">${this.esc(xlabel)}</text>`;
+      s += `<text x="20" y="${pad.t+ih/2}" text-anchor="middle" fill="${soft}" font-size="12" transform="rotate(-90,20,${pad.t+ih/2})">${this.esc(ylabel)}</text>`;
+      series.forEach(sr=>{
+        if (!sr.points.length) return;
+        const isFlat = sr.points.length>1 && Math.abs(sr.points[sr.points.length-1][1] - sr.points[0][1]) < 1;
+        let d = sr.points.map((p,i)=>`${i===0?'M':'L'}${sx(p[0])},${sy(p[1])}`).join(' ');
+        s += `<path d="${d}" fill="none" stroke="${sr.color}" stroke-width="${isFlat?2:1.5}" ${isFlat?'stroke-dasharray="5,3"':''} opacity="0.9"/>`;
+        sr.points.forEach((p,i)=>i%2===0?s += `<circle cx="${sx(p[0])}" cy="${sy(p[1])}" r="3" fill="${sr.color}"/>`:'');
+        const last = sr.points[sr.points.length-1];
+        s += `<text x="${sx(last[0])+8}" y="${sy(last[1])+4}" fill="${sr.color}" font-size="10" font-weight="500">${this.esc(sr.label)}</text>`;
+      });
+      s += `</svg>`;
+      return s;
+    },
+    timeline(items, opts={}){
+      const {w=760,h=null,startDate=null,endDate=null} = opts;
+      const ink = this.c('--ink'), soft = this.c('--ink-soft'), line = this.c('--line');
+      const pad = {l:40,r:40,t:50,b:70};
+      if (!items.length) return '';
+      const dates = items.map(it=>new Date(it.date).getTime());
+      const tStart = startDate ? new Date(startDate).getTime() : Math.min(...dates) - 30*86400000;
+      const tEnd = endDate ? new Date(endDate).getTime() : Math.max(...dates) + 30*86400000;
+      const H = h || (pad.t + pad.b + Math.ceil(items.length/2) * 44);
+      const iw = w - pad.l - pad.r;
+      const sx = t => pad.l + (t - tStart)/(tEnd - tStart)*iw;
+      const axisY = H - pad.b;
+      let s = `<svg viewBox="0 0 ${w} ${H}" xmlns="http://www.w3.org/2000/svg" style="font-family:var(--mono);width:100%;" role="img" aria-label="Release timeline"><title>Release timeline</title>`;
+      s += `<line x1="${pad.l}" y1="${axisY}" x2="${w-pad.r}" y2="${axisY}" stroke="${line}" stroke-width="2"/>`;
+      const startYear = new Date(tStart).getFullYear(), endYear = new Date(tEnd).getFullYear();
+      for(let y=startYear;y<=endYear;y++){
+        for(let m=0;m<12;m+=1){
+          const t = new Date(y,m,1).getTime();
+          if (t < tStart || t > tEnd) continue;
+          const x = sx(t);
+          s += `<line x1="${x}" y1="${axisY-3}" x2="${x}" y2="${axisY+3}" stroke="${line}" opacity="${m%3===0?'0.6':'0.3'}"/>`;
+          if (m===0) s += `<text x="${x}" y="${axisY+20}" text-anchor="middle" fill="${soft}" font-size="11" font-weight="600">${y}</text>`;
+          else if (m%3===0) s += `<line x1="${x}" y1="${axisY-6}" x2="${x}" y2="${axisY+6}" stroke="${line}" opacity="0.5"/>`;
+        }
+      }
+      items.forEach((it,i)=>{
+        const t = new Date(it.date).getTime();
+        const x = sx(t);
+        const lane = it.lane != null ? it.lane : (i % 4);
+        const above = lane % 2 === 0;
+        const yOff = above ? -24 - Math.floor(lane/2)*48 : 24 + Math.floor(lane/2)*48;
+        const anchor = above ? 'end' : 'start';
+        const textY = axisY + yOff + (above ? -4 : 14);
+        const tagY = axisY + yOff + (above ? 10 : 28);
+        s += `<circle cx="${x}" cy="${axisY}" r="5" fill="${it.color||this.PALETTE[0]}" stroke="${this.c('--bg')}" stroke-width="1.5"/>`;
+        s += `<line x1="${x}" y1="${axisY}" x2="${x}" y2="${axisY+yOff}" stroke="${it.color||this.PALETTE[0]}" stroke-width="1.2" opacity="0.7"/>`;
+        s += `<text x="${x}" y="${textY}" text-anchor="middle" fill="${ink}" font-size="11" font-weight="600">${this.esc(it.label)}</text>`;
+        if (it.tag) s += `<text x="${x}" y="${tagY}" text-anchor="middle" fill="${soft}" font-size="9">${this.esc(it.tag)}</text>`;
+      });
+      s += `</svg>`;
+      return s;
+    }
   };
 
-  /**
-   * Render a diagram into a container by ID.
-   * @param {string} diagramId - Key from DIAGRAM_REGISTRY (e.g. 'mla', 'moe-routing')
-   * @param {Element|string} container - DOM element or selector string
-   * @param {Object} [options] - Optional customization
-   * @param {string} [options.title] - Override diagram title
-   * @param {Object} [options.annotations] - Map of label text → replacement text
-   */
-  function renderDiagram(diagramId, container, options) {
-    options = options || {};
-    const target = typeof container === 'string' ? document.querySelector(container) : container;
-    if (!target) { console.warn('renderDiagram: container not found', container); return false; }
-
-    const svgId = DIAGRAM_REGISTRY[diagramId] || (diagramId.startsWith('diagram-') ? diagramId : 'diagram-' + diagramId);
-    const template = document.getElementById('svg-components');
-    if (!template) { console.warn('renderDiagram: #svg-components template not found'); return false; }
-
-    const sourceSvg = template.content.getElementById(svgId);
-    if (!sourceSvg) { console.warn('renderDiagram: diagram not found:', svgId); return false; }
-
-    // Clone the SVG (deep clone)
-    const clone = sourceSvg.cloneNode(true);
-    clone.removeAttribute('id');
-    clone.classList.add('rendered-diagram');
-
-    // Apply title override if provided
-    if (options.title) {
-      const titleEl = clone.querySelector('text');
-      if (titleEl && titleEl.classList.contains('svg-label')) {
-        titleEl.textContent = options.title;
-      }
-    }
-
-    // Apply text annotations if provided
-    if (options.annotations) {
-      const textEls = clone.querySelectorAll('text');
-      textEls.forEach(el => {
-        const original = el.textContent.trim();
-        if (options.annotations[original]) {
-          el.textContent = options.annotations[original];
-        }
-      });
-    }
-
-    // Find or create .diagram-slot and inject
-    let slot = target.querySelector('.diagram-slot');
-    if (!slot) {
-      slot = document.createElement('div');
-      slot.className = 'diagram-slot';
-      target.insertBefore(slot, target.firstChild);
-    }
-    slot.innerHTML = '';
-    slot.appendChild(clone);
-
-    return true;
+  function toggleTheme() {
+    const html = document.documentElement;
+    const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', next);
+    if (window._renderCharts) window._renderCharts();
   }
 
-  /**
-   * Auto-render all figures with data-diagram attribute on page load.
-   * Placeholder values like {{ARCH_DIAGRAM_ID}} will be skipped (won't match any diagram).
-   */
-  function autoRenderDiagrams() {
-    const figures = document.querySelectorAll('figure[data-diagram]');
-    figures.forEach(fig => {
-      const diagramId = fig.getAttribute('data-diagram');
-      // Skip template placeholders that weren't replaced
-      if (!diagramId || diagramId.startsWith('{{') || diagramId.includes('{{')) return;
-      renderDiagram(diagramId, fig);
+  function sortTable(n) {
+    const table = document.getElementById('roster');
+    if (!table) return;
+    const tbody = table.tBodies[0];
+    const rows = Array.from(tbody.rows);
+    const asc = table.getAttribute('data-sort-'+n) !== 'asc';
+    rows.sort((a,b) => {
+      const va = a.cells[n].textContent.trim();
+      const vb = b.cells[n].textContent.trim();
+      const na = parseFloat(va.replace(/[^0-9.]/g,'')), nb = parseFloat(vb.replace(/[^0-9.]/g,''));
+      if (!isNaN(na) && !isNaN(nb)) return asc ? na-nb : nb-na;
+      return asc ? va.localeCompare(vb,'zh') : vb.localeCompare(va,'zh');
     });
+    rows.forEach(r => tbody.appendChild(r));
+    for(let i=0;i<table.tHead.rows[0].cells.length;i++) table.removeAttribute('data-sort-'+i);
+    table.setAttribute('data-sort-'+n, asc?'asc':'desc');
   }
-
-  /**
-   * Programmatically create a diagram figure and insert it before an element.
-   * @param {string} diagramId - Diagram key
-   * @param {string} caption - Figure caption text
-   * @param {Element} beforeEl - Element to insert before
-   * @param {Object} [options] - renderDiagram options
-   */
-  function insertDiagram(diagramId, caption, beforeEl, options) {
-    const fig = document.createElement('figure');
-    fig.setAttribute('data-diagram', diagramId);
-    fig.innerHTML = '<div class="diagram-slot"></div><figcaption><b>Figure.</b> ' + caption + '</figcaption>';
-    beforeEl.parentNode.insertBefore(fig, beforeEl);
-    renderDiagram(diagramId, fig, options);
-    return fig;
-  }
-
-  // =========================================================================
-  // Table sorting
-  // =========================================================================
-  function sortTable(col, tableId) {
-    const tbl = tableId ? document.getElementById(tableId) : document.getElementById('roster');
-    if (!tbl) return;
-    const tb = tbl.tBodies[0];
-    if (!tb) return;
-    const rows = Array.from(tb.rows);
-    const numeric = tbl.tHead.rows[0].cells[col].classList.contains('num');
-    const dir = tbl.dataset.sortcol == col && tbl.dataset.sortdir == 'asc' ? 'desc' : 'asc';
-    rows.sort((a, b) => {
-      let x = a.cells[col].innerText.trim(), y = b.cells[col].innerText.trim();
-      if (numeric) {
-        const px = parseFloat(x.replace(/[^0-9.\-]/g, '')) || 0;
-        const py = parseFloat(y.replace(/[^0-9.\-]/g, '')) || 0;
-        return dir == 'asc' ? px - py : py - px;
-      }
-      return dir == 'asc' ? x.localeCompare(y) : y.localeCompare(x);
-    });
-    rows.forEach(r => tb.appendChild(r));
-    tbl.dataset.sortcol = col; tbl.dataset.sortdir = dir;
-
-    // Update sort indicators
-    const ths = tbl.tHead.rows[0].cells;
-    for (let i = 0; i < ths.length; i++) {
-      const th = ths[i];
-      let indicator = '';
-      if (i == col) indicator = dir == 'asc' ? ' ↑' : ' ↓';
-      // Remove old indicators
-      th.textContent = th.textContent.replace(/ [↑↓]$/, '') + (i == col ? indicator : '');
-    }
-  }
-
-  // =========================================================================
-  // Cost/performance scatter chart (generates simple SVG bar/scatter from data)
-  // =========================================================================
-  /**
-   * Render a simple cost scatter plot.
-   * @param {string} containerSelector - Where to render
-   * @param {Array<{name:string, price:number, quality:number, usage?:number, color?:string}>} dataPoints
-   *        price: $/1M input tokens, quality: 0-100 score, usage: relative bubble size
-   */
-  function renderCostScatter(containerSelector, dataPoints) {
-    const container = document.querySelector(containerSelector);
-    if (!container || !dataPoints || !dataPoints.length) return;
-
-    const W = 680, H = 380, pad = { l: 70, r: 30, t: 30, b: 50 };
-    const plotW = W - pad.l - pad.r;
-    const plotH = H - pad.t - pad.b;
-
-    const prices = dataPoints.map(d => d.price);
-    const minP = 0, maxP = Math.max(...prices) * 1.1;
-    const minQ = 0, maxQ = 100;
-    const maxUsage = Math.max(...dataPoints.map(d => d.usage || 1));
-
-    const sx = p => pad.l + (p - minP) / (maxP - minP) * plotW;
-    const sy = q => pad.t + (1 - (q - minQ) / (maxQ - minQ)) * plotH;
-    const sr = u => 4 + (u / maxUsage) * 18;
-
-    const svgNs = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(svgNs, 'svg');
-    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-    svg.setAttribute('xmlns', svgNs);
-    svg.classList.add('rendered-diagram');
-
-    // Background
-    const bg = document.createElementNS(svgNs, 'rect');
-    bg.setAttribute('x', pad.l); bg.setAttribute('y', pad.t);
-    bg.setAttribute('width', plotW); bg.setAttribute('height', plotH);
-    bg.setAttribute('fill', 'var(--bg-card)'); bg.setAttribute('stroke', 'var(--line)');
-    bg.setAttribute('rx', '4');
-    svg.appendChild(bg);
-
-    // Grid lines
-    for (let i = 0; i <= 4; i++) {
-      const y = pad.t + (i / 4) * plotH;
-      const line = document.createElementNS(svgNs, 'line');
-      line.setAttribute('x1', pad.l); line.setAttribute('x2', pad.l + plotW);
-      line.setAttribute('y1', y); line.setAttribute('y2', y);
-      line.setAttribute('stroke', 'var(--line)'); line.setAttribute('stroke-width', '0.5');
-      svg.appendChild(line);
-
-      const label = document.createElementNS(svgNs, 'text');
-      label.setAttribute('x', pad.l - 8); label.setAttribute('y', y + 4);
-      label.setAttribute('text-anchor', 'end');
-      label.setAttribute('class', 'svg-faint');
-      label.textContent = Math.round(100 - i * 25);
-      svg.appendChild(label);
-    }
-
-    // Axes labels
-    const xlab = document.createElementNS(svgNs, 'text');
-    xlab.setAttribute('x', pad.l + plotW / 2); xlab.setAttribute('y', H - 8);
-    xlab.setAttribute('text-anchor', 'middle'); xlab.setAttribute('class', 'svg-faint');
-    xlab.textContent = 'Price ($/1M input tokens) →';
-    svg.appendChild(xlab);
-
-    const ylab = document.createElementNS(svgNs, 'text');
-    ylab.setAttribute('transform', `translate(16, ${pad.t + plotH/2}) rotate(-90)`);
-    ylab.setAttribute('text-anchor', 'middle'); ylab.setAttribute('class', 'svg-faint');
-    ylab.textContent = 'Capability score →';
-    svg.appendChild(ylab);
-
-    // Frontier line (convex hull approximation: connect points sorted by price)
-    const sorted = [...dataPoints].sort((a,b) => a.price - b.price);
-    let frontier = [];
-    let bestQ = -1;
-    for (const d of sorted) {
-      if (d.quality > bestQ) {
-        frontier.push(d);
-        bestQ = d.quality;
-      }
-    }
-    if (frontier.length >= 2) {
-      const path = document.createElementNS(svgNs, 'path');
-      const d = frontier.map((p, i) => `${i === 0 ? 'M' : 'L'} ${sx(p.price)} ${sy(p.quality)}`).join(' ');
-      path.setAttribute('d', d);
-      path.setAttribute('fill', 'none'); path.setAttribute('stroke', 'var(--accent)');
-      path.setAttribute('stroke-width', '1.5'); path.setAttribute('stroke-dasharray', '4,3');
-      path.setAttribute('opacity', '0.7');
-      svg.appendChild(path);
-    }
-
-    // Data points
-    const colors = ['var(--accent)', 'var(--accent-2)', 'var(--accent-3)', '#8a63d2', '#ff6f61', '#00b8d9', '#e94f9e'];
-    dataPoints.forEach((d, i) => {
-      const c = document.createElementNS(svgNs, 'circle');
-      c.setAttribute('cx', sx(d.price)); c.setAttribute('cy', sy(d.quality));
-      c.setAttribute('r', sr(d.usage || 1));
-      c.setAttribute('fill', d.color || colors[i % colors.length]);
-      c.setAttribute('opacity', '0.75');
-      c.setAttribute('stroke', 'var(--ink)'); c.setAttribute('stroke-width', '1');
-      svg.appendChild(c);
-
-      const label = document.createElementNS(svgNs, 'text');
-      label.setAttribute('x', sx(d.price) + sr(d.usage || 1) + 4);
-      label.setAttribute('y', sy(d.quality) + 4);
-      label.setAttribute('class', 'svg-faint');
-      label.setAttribute('font-size', '10');
-      label.textContent = d.name;
-      svg.appendChild(label);
-    });
-
-    container.innerHTML = '';
-    container.appendChild(svg);
-  }
-
-  // =========================================================================
-  // KV-cache bar chart (can be called with actual data to override schematic)
-  // =========================================================================
-  /**
-   * Render a KV-cache size comparison bar chart with real data.
-   * @param {string} containerSelector
-   * @param {Array<{name:string, relativeSize:number, color?:string}>} bars
-   *        relativeSize: 1.0 = full MHA baseline
-   */
-  function renderKVChart(containerSelector, bars) {
-    // If no custom data provided, the template SVG (data-diagram) will be used.
-    // This function is for when you have actual measured numbers.
-    const container = document.querySelector(containerSelector);
-    if (!container || !bars || !bars.length) return;
-
-    const W = 500, H = 260, pad = { l: 60, r: 20, t: 30, b: 50 };
-    const plotW = W - pad.l - pad.r;
-    const plotH = H - pad.t - pad.b;
-    const maxV = Math.max(...bars.map(b => b.relativeSize));
-    const barW = Math.min(60, (plotW / bars.length) - 16);
-    const gap = (plotW - barW * bars.length) / (bars.length + 1);
-
-    const svgNs = 'http://www.w3.org/2000/svg';
-    const svg = document.createElementNS(svgNs, 'svg');
-    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-    svg.setAttribute('xmlns', svgNs);
-    svg.classList.add('rendered-diagram');
-
-    // Title
-    const title = document.createElementNS(svgNs, 'text');
-    title.setAttribute('x', W/2); title.setAttribute('y', 18);
-    title.setAttribute('text-anchor', 'middle'); title.setAttribute('class', 'svg-label');
-    title.textContent = 'KV-cache size at 128K context (relative to MHA)';
-    svg.appendChild(title);
-
-    // Baseline
-    const base = document.createElementNS(svgNs, 'line');
-    base.setAttribute('x1', pad.l); base.setAttribute('x2', pad.l + plotW);
-    base.setAttribute('y1', pad.t + plotH); base.setAttribute('y2', pad.t + plotH);
-    base.setAttribute('stroke', 'var(--line)');
-    svg.appendChild(base);
-
-    const colors = ['var(--accent)', 'var(--accent-2)', 'var(--accent-3)', '#8a63d2', '#ff6f61'];
-
-    bars.forEach((b, i) => {
-      const x = pad.l + gap + i * (barW + gap);
-      const h = (b.relativeSize / maxV) * plotH;
-      const y = pad.t + plotH - h;
-
-      const rect = document.createElementNS(svgNs, 'rect');
-      rect.setAttribute('x', x); rect.setAttribute('y', y);
-      rect.setAttribute('width', barW); rect.setAttribute('height', h);
-      rect.setAttribute('fill', b.color || colors[i % colors.length]);
-      rect.setAttribute('opacity', '0.8'); rect.setAttribute('rx', '3');
-      svg.appendChild(rect);
-
-      const val = document.createElementNS(svgNs, 'text');
-      val.setAttribute('x', x + barW/2); val.setAttribute('y', y - 5);
-      val.setAttribute('text-anchor', 'middle'); val.setAttribute('class', 'svg-faint');
-      val.textContent = Math.round(b.relativeSize * 100) + '%';
-      svg.appendChild(val);
-
-      const name = document.createElementNS(svgNs, 'text');
-      name.setAttribute('x', x + barW/2); name.setAttribute('y', pad.t + plotH + 18);
-      name.setAttribute('text-anchor', 'middle'); name.setAttribute('class', 'svg-faint');
-      name.textContent = b.name;
-      svg.appendChild(name);
-    });
-
-    container.innerHTML = '';
-    container.appendChild(svg);
-  }
-
-  // =========================================================================
-  // Bootstrap on DOM ready
-  // =========================================================================
-  document.addEventListener('DOMContentLoaded', function() {
-    autoRenderDiagrams();
-  });
 </script>
 </body>
 </html>
