@@ -1,35 +1,36 @@
 #!/usr/bin/env python3
 """
-collect.py — optional data-collection helper for the llm-architecture-tracker skill.
+collect.py — data-collection helper for the llm-architecture-tracker skill.
 
-This is a SCAFFOLD for scheduled / repeatable runs. It pulls machine-readable
-data (OpenRouter model list + pricing, HuggingFace configs) into the snapshot
-schema so the human/Claude analysis step starts from structured data instead of
-hand-copied numbers. It does NOT replace the qualitative architecture analysis —
-it feeds it.
+Pulls machine-readable data (OpenRouter model list + pricing, HuggingFace configs)
+into the snapshot schema defined in references/data-schema.md.
+
+This is the data-collection half of the pipeline; the architecture analysis
+half is done by the LLM using the skill's reference files.
 
 Network notes:
-- OpenRouter exposes a public models endpoint: https://openrouter.ai/api/v1/models
-  (no key required for the public list; pricing is included per model).
+- OpenRouter public models endpoint: https://openrouter.ai/api/v1/models
+  (no key required; set OPENROUTER_API_KEY env var for authenticated access).
 - HuggingFace config: https://huggingface.co/<org>/<model>/raw/main/config.json
-- Some Chinese-lab weights live on ModelScope; configs there are at
-  https://modelscope.cn/models/<org>/<model>/resolve/master/config.json
+- ModelScope config: https://modelscope.cn/models/<org>/<model>/resolve/master/config.json
 
 Usage:
     python collect.py --out snapshots/$(date +%F).json
     python collect.py --out snapshots/2026-06-25.json --hf deepseek-ai/DeepSeek-V3.2 Qwen/Qwen3-235B-A22B
+    OPENROUTER_API_KEY=sk-... python collect.py --out snapshots/$(date +%F).json
 
-Dependencies: only the standard library (urllib). If `requests` is available it
-will be used, otherwise urllib.
+Dependencies: only the standard library (urllib).
 """
 
 import argparse
 import datetime as dt
 import json
+import os
 import sys
 import urllib.request
 import urllib.error
 
+SCHEMA_VERSION = "1.0.0"
 OPENROUTER_MODELS = "https://openrouter.ai/api/v1/models"
 HF_CONFIG = "https://huggingface.co/{repo}/raw/main/config.json"
 MODELSCOPE_CONFIG = "https://modelscope.cn/models/{repo}/resolve/master/config.json"
@@ -42,8 +43,12 @@ TRACKED_LABS = [
 ]
 
 
-def fetch(url, timeout=30):
-    req = urllib.request.Request(url, headers={"User-Agent": "llm-arch-tracker/1.0"})
+def fetch(url, timeout=30, api_key=None):
+    """Fetch a URL with optional bearer-token auth. Returns text or None."""
+    headers = {"User-Agent": "llm-arch-tracker/1.0"}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
+    req = urllib.request.Request(url, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=timeout) as r:
             return r.read().decode("utf-8")
@@ -54,16 +59,17 @@ def fetch(url, timeout=30):
     return None
 
 
-def get_openrouter_models():
-    """Return a list of normalized model dicts with pricing from OpenRouter."""
-    raw = fetch(OPENROUTER_MODELS)
+def get_openrouter_models(api_key=None):
+    """Return a list of normalized OpenRouterRanking objects (per data-schema.md)."""
+    raw = fetch(OPENROUTER_MODELS, api_key=api_key)
     if not raw:
         return []
     data = json.loads(raw).get("data", [])
     out = []
-    for m in data:
+    for idx, m in enumerate(data):
         pricing = m.get("pricing", {}) or {}
-        # OpenRouter prices are per-token strings; convert to per-1M for readability.
+
+        # OpenRouter prices are per-token strings; convert to per-1M tokens.
         def per_m(key):
             v = pricing.get(key)
             try:
@@ -71,28 +77,28 @@ def get_openrouter_models():
             except (TypeError, ValueError):
                 return None
 
-        out.append({
-            "id": m.get("id"),
+        entry = {
+            "model_id": m.get("id"),
             "display_name": m.get("name"),
-            "context_max": m.get("context_length"),
-            "pricing": {
-                "currency": "USD",
-                "per_1m_input": per_m("prompt"),
-                "per_1m_output": per_m("completion"),
-                "per_1m_cached_input": per_m("input_cache_read"),
-            },
+            "usage_rank": idx + 1,  # OpenRouter returns in popularity order
+            "context_window": m.get("context_length"),
+            "pricing_input_per_m": per_m("prompt"),
+            "pricing_output_per_m": per_m("completion"),
+            "pricing_cached_input_per_m": per_m("input_cache_read"),
             "modality": (m.get("architecture", {}) or {}).get("modality"),
+            "endorsed_by": m.get("organization"),
             "source_url": f"https://openrouter.ai/{m.get('id', '')}",
-        })
+        }
+        out.append(entry)
     return out
 
 
-def tag_tracked(models):
-    """Mark models that belong to a tracked lab so the analyst can prioritize."""
-    for m in models:
-        mid = (m.get("id") or "").lower()
-        m["tracked"] = any(lab in mid for lab in TRACKED_LABS)
-    return models
+def tag_tracked(rankings):
+    """Mark models that belong to a tracked lab for prioritization."""
+    for r in rankings:
+        mid = (r.get("model_id") or "").lower()
+        r["tracked"] = any(lab in mid for lab in TRACKED_LABS)
+    return rankings
 
 
 def get_hf_config(repo):
@@ -106,7 +112,7 @@ def get_hf_config(repo):
         cfg = json.loads(raw)
     except json.JSONDecodeError:
         return None
-    # Pull the architecture-relevant fields the analysis cares about.
+    # Architecture-relevant fields from data-schema.md ModelEntry.
     keep = {
         "model_type", "architectures", "num_hidden_layers", "hidden_size",
         "num_attention_heads", "num_key_value_heads", "head_dim",
@@ -117,35 +123,50 @@ def get_hf_config(repo):
         "sliding_window", "attention_dropout", "torch_dtype",
     }
     extracted = {k: cfg.get(k) for k in keep if k in cfg}
-    return {"repo": repo, "config_url": HF_CONFIG.format(repo=repo),
-            "config_excerpt": extracted}
+    return {
+        "repo": repo,
+        "config_url": HF_CONFIG.format(repo=repo),
+        "config_excerpt": extracted,
+    }
 
 
 def main():
     ap = argparse.ArgumentParser(description="Collect LLM landscape data into a snapshot.")
-    ap.add_argument("--out", default=f"snapshots/{dt.date.today().isoformat()}.json")
+    ap.add_argument("--out", default=f"snapshots/{dt.date.today().isoformat()}.json",
+                    help="Output snapshot JSON path")
     ap.add_argument("--hf", nargs="*", default=[],
                     help="HuggingFace repos to pull configs for, e.g. deepseek-ai/DeepSeek-V3.2")
-    ap.add_argument("--no-openrouter", action="store_true")
+    ap.add_argument("--no-openrouter", action="store_true",
+                    help="Skip OpenRouter data collection")
     args = ap.parse_args()
 
+    api_key = os.environ.get("OPENROUTER_API_KEY")
+
+    today = dt.date.today().isoformat()
     snapshot = {
-        "snapshot_date": dt.date.today().isoformat(),
-        "snapshot_version": dt.date.today().strftime("%Y.%m"),
+        "schema_version": SCHEMA_VERSION,
+        "generated_at": dt.datetime.now(dt.timezone.utc).isoformat().replace("+00:00", "Z"),
+        "snapshot_id": today,
+        "previous_snapshot_id": None,  # filled in by detect_new.py when diffing
         "generated_by": "llm-architecture-tracker/collect.py",
-        "openrouter_models": [],
+        "openrouter_rankings": [],
         "hf_configs": [],
-        "models": [],   # left for the analyst/Claude to fill with full Model objects
+        "models": [],   # filled by the analyst/Claude with full ModelEntry objects
         "synthesis": {},
-        "notes": "Machine-collected scaffold. Architecture/capability analysis is "
-                 "done by Claude using the skill's reference files; this file only "
-                 "seeds pricing/context/config numbers.",
+        "notes": (
+            "Machine-collected scaffold. Architecture/capability analysis is "
+            "done by Claude using the skill's reference files; this file only "
+            "seeds pricing/context/config numbers."
+        ),
     }
 
     if not args.no_openrouter:
-        print("[info] fetching OpenRouter model list…", file=sys.stderr)
-        snapshot["openrouter_models"] = tag_tracked(get_openrouter_models())
-        print(f"[info] got {len(snapshot['openrouter_models'])} models", file=sys.stderr)
+        auth_note = " (authenticated)" if api_key else " (public)"
+        print(f"[info] fetching OpenRouter model list{auth_note}…", file=sys.stderr)
+        snapshot["openrouter_rankings"] = tag_tracked(get_openrouter_models(api_key=api_key))
+        print(f"[info] got {len(snapshot['openrouter_rankings'])} models", file=sys.stderr)
+        tracked_count = sum(1 for r in snapshot["openrouter_rankings"] if r.get("tracked"))
+        print(f"[info] {tracked_count} models from tracked labs", file=sys.stderr)
 
     for repo in args.hf:
         print(f"[info] fetching config for {repo}…", file=sys.stderr)
@@ -153,7 +174,6 @@ def main():
         if cfg:
             snapshot["hf_configs"].append(cfg)
 
-    import os
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as f:
         json.dump(snapshot, f, ensure_ascii=False, indent=2)
