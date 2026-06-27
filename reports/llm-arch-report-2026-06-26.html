@@ -319,7 +319,7 @@
       <td class="num">—</td>
       <td class="num">—</td>
       <td>MSA稀疏注意力</td>
-      <td>NoneENoneA</td>
+      <td>?E?A</td>
       <td class="num">1M</td>
       <td>proprietary</td>
       <td class="num">0.800</td>
@@ -554,6 +554,56 @@
       </div>
     </div>
     <div class="model-card">
+      <h3><span class="lab lab-deepseek">Zhipu AI</span> &nbsp;GLM-5.2</h3>
+      <div class="spec-strip">
+        <div class="spec"><b>参数</b><span>744B / 40B 激活</span></div>
+        <div class="spec"><b>注意力</b><span>MLA</span></div>
+        <div class="spec"><b>MoE</b><span>256E8A+1S</span></div>
+        <div class="spec"><b>上下文</b><span>200K</span></div>
+        <div class="spec"><b>价格/1M</b><span>$0.300 入 · $1.20 出</span></div>
+        <div class="spec"><b>许可</b><span>MIT</span></div>
+      </div>
+
+      <h4>架构变化与设计动机</h4>
+      <p>GLM-5.2（Z.ai/智谱）是最新迭代版本，744B总参数/40B激活，采用MLA注意力与MoE架构（256路由专家+1共享专家）。支持200K上下文窗口，在中文理解、编码和数学推理上持续改进。MIT许可，商业部署友好。</p>
+
+      <figure><svg viewBox="0 0 500 160" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="500" height="160" rx="6" class="svg-box" opacity="0.5"/>
+  <text x="250" y="22" text-anchor="middle" class="svg-label" font-size="12">GLM-5.2 · 架构概览</text>
+  <rect x="20" y="40" width="140" height="50" rx="4" class="svg-box" stroke="#5b8cff" stroke-width="1.5"/>
+  <text x="90" y="60" text-anchor="middle" class="svg-label" font-size="11">注意力</text>
+  <text x="90" y="78" text-anchor="middle" class="svg-faint" font-size="10">MLA · 128头</text>
+  <text x="90" y="92" text-anchor="middle" class="svg-faint" font-size="9">KV潜在向量压缩</text>
+  <line x1="160" y1="65" x2="190" y2="65" class="svg-flow"/>
+  <rect x="190" y="40" width="150" height="50" rx="4" class="svg-box" stroke="#5b8cff" stroke-width="1.5"/>
+  <text x="265" y="60" text-anchor="middle" class="svg-label" font-size="11">MoE FFN</text>
+  <text x="265" y="78" text-anchor="middle" class="svg-faint" font-size="10">256专家 · top-8+1共享</text>
+  <line x1="340" y1="65" x2="360" y2="65" class="svg-flow"/>
+  <rect x="360" y="40" width="120" height="50" rx="4" class="svg-box"/>
+  <text x="420" y="60" text-anchor="middle" class="svg-label" font-size="11">上下文</text>
+  <text x="420" y="78" text-anchor="middle" class="svg-faint" font-size="10">200K</text>
+  <line x1="20" y1="105" x2="480" y2="105" stroke="var(--line)" stroke-dasharray="2,2"/>
+  <text x="30" y="125" class="svg-faint" font-size="10">总参数: 744B</text>
+  <text x="130" y="125" class="svg-faint" font-size="10">激活: 40B</text>
+  <text x="250" y="125" class="svg-faint" font-size="10">MTP-3</text>
+  <text x="350" y="125" class="svg-faint" font-size="10">混合(可切换)</text>
+  <text x="30" y="145" class="svg-faint" font-size="9">基于官方config.json与技术报告标注</text>
+</svg><figcaption><b>图.</b> GLM-5.2 架构概览（基于官方配置标注）</figcaption></figure>
+
+      <h4>能力评估</h4>
+      <p>中文理解能力领先，编码和数学推理表现优异，MIT许可商业友好。 <span class="tag-measured">[实测]</span> / <span class="tag-claimed">[厂商声称]</span> 如标注所示。</p>
+
+      <h4>技术谱系</h4>
+      <p>GLM-4 → GLM-5 → GLM-5.1 → GLM-5.2(MLA MoE, 200K上下文) → 增量变化：MLA MoE, 200K上下文, MIT许可, 中文能力增强。</p>
+
+      <div class="sources">来源：
+        <a href="https://z.ai/blog/glm-5">技术报告</a>
+        <a href="https://huggingface.co/zai-org/GLM-5.2/blob/main/config.json">config.json</a>
+        <a href="https://huggingface.co/zai-org/GLM-5.2">HF模型卡</a>
+        <a href="https://openrouter.ai/zhipu/glm-5.2">OpenRouter</a>
+      </div>
+    </div>
+    <div class="model-card">
       <h3><span class="lab lab-glm">GLM (Z.ai/Zhipu)</span> &nbsp;GLM-5.1</h3>
       <div class="spec-strip">
         <div class="spec"><b>参数</b><span>754B / 40B 激活</span></div>
@@ -701,6 +751,55 @@
         <a href="#">config.json</a>
         <a href="https://huggingface.co/mistralai/Mistral-Large-3">HF模型卡</a>
         <a href="https://openrouter.ai/mistralai/mistral-large-3">OpenRouter</a>
+      </div>
+    </div>
+    <div class="model-card">
+      <h3><span class="lab lab-minimax">MiniMax</span> &nbsp;MiniMax M3</h3>
+      <div class="spec-strip">
+        <div class="spec"><b>参数</b><span>—B / —B 激活</span></div>
+        <div class="spec"><b>注意力</b><span>MSA稀疏注意力</span></div>
+        <div class="spec"><b>MoE</b><span>?E?A</span></div>
+        <div class="spec"><b>上下文</b><span>1M</span></div>
+        <div class="spec"><b>价格/1M</b><span>$0.800 入 · $2.40 出</span></div>
+        <div class="spec"><b>许可</b><span>proprietary</span></div>
+      </div>
+
+      <h4>架构变化与设计动机</h4>
+      <p>MiniMax M3采用MSA（Multi-Scale Sparse Attention）多尺度稀疏注意力架构，支持1M超长上下文窗口，原生多模态能力（文本/图像/视频/音频统一建模）。在长文档理解和多模态任务上表现突出。</p>
+
+      <figure><svg viewBox="0 0 500 160" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="500" height="160" rx="6" class="svg-box" opacity="0.5"/>
+  <text x="250" y="22" text-anchor="middle" class="svg-label" font-size="12">MiniMax M3 · 架构概览</text>
+  <rect x="20" y="40" width="140" height="50" rx="4" class="svg-box" stroke="#e94f9e" stroke-width="1.5"/>
+  <text x="90" y="60" text-anchor="middle" class="svg-label" font-size="11">注意力</text>
+  <text x="90" y="78" text-anchor="middle" class="svg-faint" font-size="10">MSA稀疏注意力 · ?头</text>
+  <line x1="160" y1="65" x2="190" y2="65" class="svg-flow"/>
+  <rect x="190" y="40" width="150" height="50" rx="4" class="svg-box" stroke="#e94f9e" stroke-width="1.5"/>
+  <text x="265" y="60" text-anchor="middle" class="svg-label" font-size="11">MoE FFN</text>
+  <text x="265" y="78" text-anchor="middle" class="svg-faint" font-size="10">?专家 · top-?</text>
+  <line x1="340" y1="65" x2="360" y2="65" class="svg-flow"/>
+  <rect x="360" y="40" width="120" height="50" rx="4" class="svg-box"/>
+  <text x="420" y="60" text-anchor="middle" class="svg-label" font-size="11">上下文</text>
+  <text x="420" y="78" text-anchor="middle" class="svg-faint" font-size="10">1M</text>
+  <line x1="20" y1="105" x2="480" y2="105" stroke="var(--line)" stroke-dasharray="2,2"/>
+  <text x="30" y="125" class="svg-faint" font-size="10">总参数: ?B</text>
+  <text x="130" y="125" class="svg-faint" font-size="10">激活: ?B</text>
+  <text x="250" y="125" class="svg-faint" font-size="10">MTP-4</text>
+  <text x="350" y="125" class="svg-faint" font-size="10">混合(可切换)</text>
+  <text x="30" y="145" class="svg-faint" font-size="9">基于官方config.json与技术报告标注</text>
+</svg><figcaption><b>图.</b> MiniMax M3 架构概览（基于官方配置标注）</figcaption></figure>
+
+      <h4>能力评估</h4>
+      <p>超长上下文处理能力强，原生多模态支持，适合多模态长文档任务。 <span class="tag-measured">[实测]</span> / <span class="tag-claimed">[厂商声称]</span> 如标注所示。</p>
+
+      <h4>技术谱系</h4>
+      <p>MiniMax M1 → M2(MSA稀疏) → M3(多模态, 1M上下文) → 增量变化：MSA稀疏注意力, 1M上下文, 原生多模态。</p>
+
+      <div class="sources">来源：
+        <a href="https://www.minimaxi.com/blog/minimax-m3">技术报告</a>
+        <a href="#">config.json</a>
+        <a href="#">HF模型卡</a>
+        <a href="https://openrouter.ai/minimax/minimax-m3">OpenRouter</a>
       </div>
     </div>
     <div class="model-card">
@@ -1049,105 +1148,6 @@
         <a href="https://huggingface.co/Qwen/Qwen3-32B/blob/main/config.json">config.json</a>
         <a href="https://huggingface.co/Qwen/Qwen3-32B">HF模型卡</a>
         <a href="https://openrouter.ai/qwen/qwen-3-32b">OpenRouter</a>
-      </div>
-    </div>
-    <div class="model-card">
-      <h3><span class="lab lab-deepseek">Zhipu AI</span> &nbsp;GLM-5.2</h3>
-      <div class="spec-strip">
-        <div class="spec"><b>参数</b><span>744B / 40B 激活</span></div>
-        <div class="spec"><b>注意力</b><span>MLA</span></div>
-        <div class="spec"><b>MoE</b><span>256E8A+1S</span></div>
-        <div class="spec"><b>上下文</b><span>200K</span></div>
-        <div class="spec"><b>价格/1M</b><span>$0.300 入 · $1.20 出</span></div>
-        <div class="spec"><b>许可</b><span>MIT</span></div>
-      </div>
-
-      <h4>架构变化与设计动机</h4>
-      <p>GLM-5.2（Z.ai/智谱）是最新迭代，744B总参数/~40B激活，采用Prefix-LM + DSA稀疏注意力架构。支持128K上下文，在中文理解、编码和数学推理上持续改进。MIT许可，商业部署友好。</p>
-
-      <figure><svg viewBox="0 0 500 160" xmlns="http://www.w3.org/2000/svg">
-  <rect x="0" y="0" width="500" height="160" rx="6" class="svg-box" opacity="0.5"/>
-  <text x="250" y="22" text-anchor="middle" class="svg-label" font-size="12">GLM-5.2 · 架构概览</text>
-  <rect x="20" y="40" width="140" height="50" rx="4" class="svg-box" stroke="#5b8cff" stroke-width="1.5"/>
-  <text x="90" y="60" text-anchor="middle" class="svg-label" font-size="11">注意力</text>
-  <text x="90" y="78" text-anchor="middle" class="svg-faint" font-size="10">MLA · 128头</text>
-  <text x="90" y="92" text-anchor="middle" class="svg-faint" font-size="9">KV潜在向量压缩</text>
-  <line x1="160" y1="65" x2="190" y2="65" class="svg-flow"/>
-  <rect x="190" y="40" width="150" height="50" rx="4" class="svg-box" stroke="#5b8cff" stroke-width="1.5"/>
-  <text x="265" y="60" text-anchor="middle" class="svg-label" font-size="11">MoE FFN</text>
-  <text x="265" y="78" text-anchor="middle" class="svg-faint" font-size="10">256专家 · top-8+1共享</text>
-  <line x1="340" y1="65" x2="360" y2="65" class="svg-flow"/>
-  <rect x="360" y="40" width="120" height="50" rx="4" class="svg-box"/>
-  <text x="420" y="60" text-anchor="middle" class="svg-label" font-size="11">上下文</text>
-  <text x="420" y="78" text-anchor="middle" class="svg-faint" font-size="10">200K</text>
-  <line x1="20" y1="105" x2="480" y2="105" stroke="var(--line)" stroke-dasharray="2,2"/>
-  <text x="30" y="125" class="svg-faint" font-size="10">总参数: 744B</text>
-  <text x="130" y="125" class="svg-faint" font-size="10">激活: 40B</text>
-  <text x="250" y="125" class="svg-faint" font-size="10">MTP-3</text>
-  <text x="350" y="125" class="svg-faint" font-size="10">混合(可切换)</text>
-  <text x="30" y="145" class="svg-faint" font-size="9">基于官方config.json与技术报告标注</text>
-</svg><figcaption><b>图.</b> GLM-5.2 架构概览（基于官方配置标注）</figcaption></figure>
-
-      <h4>能力评估</h4>
-      <p>能力覆盖编码、推理和通用任务。详见下方基准矩阵。 <span class="tag-measured">[实测]</span> / <span class="tag-claimed">[厂商声称]</span> 如标注所示。</p>
-
-      <h4>技术谱系</h4>
-      <p>详见实验室技术报告。 → 增量变化：详见技术报告。。</p>
-
-      <div class="sources">来源：
-        <a href="https://z.ai/blog/glm-5">技术报告</a>
-        <a href="https://huggingface.co/zai-org/GLM-5.2/blob/main/config.json">config.json</a>
-        <a href="https://huggingface.co/zai-org/GLM-5.2">HF模型卡</a>
-        <a href="https://openrouter.ai/zhipu/glm-5.2">OpenRouter</a>
-      </div>
-    </div>
-    <div class="model-card">
-      <h3><span class="lab lab-minimax">MiniMax</span> &nbsp;MiniMax M3</h3>
-      <div class="spec-strip">
-        <div class="spec"><b>参数</b><span>—B / —B 激活</span></div>
-        <div class="spec"><b>注意力</b><span>MSA稀疏注意力</span></div>
-        <div class="spec"><b>MoE</b><span>NoneENoneA</span></div>
-        <div class="spec"><b>上下文</b><span>1M</span></div>
-        <div class="spec"><b>价格/1M</b><span>$0.800 入 · $2.40 出</span></div>
-        <div class="spec"><b>许可</b><span>proprietary</span></div>
-      </div>
-
-      <h4>架构变化与设计动机</h4>
-      <p>MiniMax M3采用MSA稀疏注意力注意力与NoneENoneA配置，支持1M上下文窗口。</p>
-
-      <figure><svg viewBox="0 0 500 160" xmlns="http://www.w3.org/2000/svg">
-  <rect x="0" y="0" width="500" height="160" rx="6" class="svg-box" opacity="0.5"/>
-  <text x="250" y="22" text-anchor="middle" class="svg-label" font-size="12">MiniMax M3 · 架构概览</text>
-  <rect x="20" y="40" width="140" height="50" rx="4" class="svg-box" stroke="#e94f9e" stroke-width="1.5"/>
-  <text x="90" y="60" text-anchor="middle" class="svg-label" font-size="11">注意力</text>
-  <text x="90" y="78" text-anchor="middle" class="svg-faint" font-size="10">MSA稀疏注意力 · None头</text>
-  <line x1="160" y1="65" x2="190" y2="65" class="svg-flow"/>
-  <rect x="190" y="40" width="150" height="50" rx="4" class="svg-box" stroke="#e94f9e" stroke-width="1.5"/>
-  <text x="265" y="60" text-anchor="middle" class="svg-label" font-size="11">MoE FFN</text>
-  <text x="265" y="78" text-anchor="middle" class="svg-faint" font-size="10">None专家 · top-None</text>
-  <line x1="340" y1="65" x2="360" y2="65" class="svg-flow"/>
-  <rect x="360" y="40" width="120" height="50" rx="4" class="svg-box"/>
-  <text x="420" y="60" text-anchor="middle" class="svg-label" font-size="11">上下文</text>
-  <text x="420" y="78" text-anchor="middle" class="svg-faint" font-size="10">1M</text>
-  <line x1="20" y1="105" x2="480" y2="105" stroke="var(--line)" stroke-dasharray="2,2"/>
-  <text x="30" y="125" class="svg-faint" font-size="10">总参数: NoneB</text>
-  <text x="130" y="125" class="svg-faint" font-size="10">激活: NoneB</text>
-  <text x="250" y="125" class="svg-faint" font-size="10">MTP-4</text>
-  <text x="350" y="125" class="svg-faint" font-size="10">混合(可切换)</text>
-  <text x="30" y="145" class="svg-faint" font-size="9">基于官方config.json与技术报告标注</text>
-</svg><figcaption><b>图.</b> MiniMax M3 架构概览（基于官方配置标注）</figcaption></figure>
-
-      <h4>能力评估</h4>
-      <p>能力覆盖编码、推理和通用任务。详见下方基准矩阵。 <span class="tag-measured">[实测]</span> / <span class="tag-claimed">[厂商声称]</span> 如标注所示。</p>
-
-      <h4>技术谱系</h4>
-      <p>详见实验室技术报告。 → 增量变化：详见技术报告。。</p>
-
-      <div class="sources">来源：
-        <a href="https://www.minimaxi.com/blog/minimax-m3">技术报告</a>
-        <a href="#">config.json</a>
-        <a href="#">HF模型卡</a>
-        <a href="https://openrouter.ai/minimax/minimax-m3">OpenRouter</a>
       </div>
     </div>
 </section>
