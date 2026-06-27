@@ -1,10 +1,7 @@
 __pycache__/
 *.pyc
 .pytest_cache/
-*.html
-!assets/report-template.html
-!references/*.html
-.zip
+*.zip
 .trae/
 files-4/
 .git-credentials
