@@ -14,14 +14,17 @@ from datetime import date, datetime
 # Paths
 # ---------------------------------------------------------------------------
 
-def get_paths(snapshot_date=None):
+def get_paths(snapshot_date=None, lang='zh'):
     if snapshot_date is None:
         snapshot_date = date.today().strftime('%Y-%m-%d')
     base = os.path.join(os.path.dirname(__file__), '..')
+    reports_dir = os.path.join(base, 'reports')
+    os.makedirs(reports_dir, exist_ok=True)
+    suffix = f'-{lang}' if lang != 'zh' else ''
     return {
         'snapshot': os.path.join(base, 'snapshots', f'{snapshot_date}.json'),
         'template': os.path.join(base, 'assets', 'report-template.html'),
-        'output': os.path.join(base, f'llm-landscape-report_{snapshot_date}.html'),
+        'output': os.path.join(reports_dir, f'llm-arch-report-{snapshot_date}{suffix}.html'),
         'date': snapshot_date,
     }
 
@@ -49,7 +52,7 @@ TRUSTED_DOMAINS = [
     'moonshot.cn', 'kimi.ai',
     'xiaomi.com', 'mimo.team',
     'stepfun.com',
-    'minimax.io', 'minimaxi.io',
+    'minimax.io', 'minimaxi.io', 'minimaxi.com',
     'nvidia.com', 'build.nvidia.com',
     'z.ai', 'zai.org', 'bigmodel.cn',
     'platform.openai.com', 'docs.anthropic.com', 'ai.google.dev', 'api.deepseek.com',
@@ -747,7 +750,7 @@ def build_chart_js(models, rankings, lang='zh'):
 # ---------------------------------------------------------------------------
 
 def main(snapshot_date=None, lang='zh', strict_sources=True):
-    paths = get_paths(snapshot_date)
+    paths = get_paths(snapshot_date, lang)
     snap = load_snapshot(paths['snapshot'])
 
     # Run source validation FIRST before any other processing
