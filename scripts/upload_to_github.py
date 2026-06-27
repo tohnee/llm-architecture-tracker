@@ -44,8 +44,7 @@ FILES_TO_UPLOAD = [
     'snapshots/2026-06-26.json',
     'tests/__init__.py',
     'tests/test_generate_report.py',
-    'reports/index.html',
-    'reports/llm-arch-report-2026-06-26-zh.html',
+    'reports/llm-arch-report-2026-06-26.html',
     'reports/llm-arch-report-2026-06-26-en.html',
 ]
 
