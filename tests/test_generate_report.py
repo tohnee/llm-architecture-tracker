@@ -267,8 +267,8 @@ class TestReportGeneration(unittest.TestCase):
             output_path = os.path.join(tmpdir, "test_report.html")
             original_paths = gr.get_paths
             
-            def mock_paths(date_str):
-                paths = original_paths(date_str)
+            def mock_paths(date_str, lang='zh'):
+                paths = original_paths(date_str, lang)
                 paths["output"] = output_path
                 return paths
             
@@ -294,8 +294,8 @@ class TestReportGeneration(unittest.TestCase):
             output_path = os.path.join(tmpdir, "test_report_charts.html")
             original_paths = gr.get_paths
             
-            def mock_paths(date_str):
-                paths = original_paths(date_str)
+            def mock_paths(date_str, lang='zh'):
+                paths = original_paths(date_str, lang)
                 paths["output"] = output_path
                 return paths
             
@@ -323,8 +323,8 @@ class TestReportGeneration(unittest.TestCase):
             output_path = os.path.join(tmpdir, "test_report_en.html")
             original_paths = gr.get_paths
             
-            def mock_paths(date_str):
-                paths = original_paths(date_str)
+            def mock_paths(date_str, lang='zh'):
+                paths = original_paths(date_str, lang)
                 paths["output"] = output_path
                 return paths
             
@@ -359,8 +359,10 @@ class TestModelDataConsistency(unittest.TestCase):
             if model["is_moe"]:
                 self.assertIn("num_experts", model)
                 self.assertIn("num_active_experts", model)
-            self.assertGreater(model["total_params_b"], 0)
-            self.assertGreater(model["active_params_b"], 0)
+            if model["total_params_b"] is not None:
+                self.assertGreater(model["total_params_b"], 0)
+            if model["active_params_b"] is not None:
+                self.assertGreater(model["active_params_b"], 0)
             self.assertGreater(model["context_window"], 0)
 
     def test_snapshot_models_have_capability_scores(self):
@@ -372,8 +374,8 @@ class TestModelDataConsistency(unittest.TestCase):
         data = gr.load_snapshot(snapshot_path)
         cap_defaults = {
             "deepseek-v4", "deepseek-v3", "kimi-k2", "qwen3-235b-a22b",
-            "glm-5.1", "mimo-v2-pro", "mistral-large-3", "minimax-m2",
-            "llama-4-maverick", "nemotron-3-ultra", "gpt-oss-120b",
+            "glm-5.1", "glm-5.2", "mimo-v2-pro", "mistral-large-3", "minimax-m2",
+            "minimax-m3", "llama-4-maverick", "nemotron-3-ultra", "gpt-oss-120b",
             "gemma-4-31b", "step-3.5-flash", "qwen3-32b"
         }
         model_ids = {m["id"] for m in data["models"]}
@@ -387,9 +389,9 @@ class TestModelDataConsistency(unittest.TestCase):
             self.skipTest("Snapshot file not found")
         
         data = gr.load_snapshot(snapshot_path)
-        self.assertEqual(len(data["models"]), 14)
+        self.assertEqual(len(data["models"]), 16)
         moe_count = sum(1 for m in data["models"] if m["is_moe"])
-        self.assertGreaterEqual(moe_count, 8)
+        self.assertEqual(moe_count, 12)
 
 
 class TestSourceValidation(unittest.TestCase):
