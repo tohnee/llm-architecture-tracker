@@ -223,9 +223,9 @@ def attention_label(at, lang='zh'):
 def moe_label(m, lang='zh'):
     if not m.get('is_moe'):
         return "Dense" if lang == 'en' else "稠密"
-    ne = m.get('num_experts', '?')
-    na = m.get('num_active_experts', '?')
-    ns = m.get('num_shared_experts', 0)
+    ne = m.get('num_experts') or '?'
+    na = m.get('num_active_experts') or '?'
+    ns = m.get('num_shared_experts') or 0
     s = f"{ne}E{na}A"
     if ns:
         s += f"+{ns}S"
@@ -336,11 +336,11 @@ def build_openrouter_rows(rankings, lang='zh'):
 def build_model_svg(m):
     att = m.get('attention_type', 'GQA')
     is_moe = m.get('is_moe', False)
-    ne = m.get('num_experts', '?')
-    na = m.get('num_active_experts', '?')
-    ns = m.get('num_shared_experts', 0)
-    n_heads = m.get('num_attention_heads', '?')
-    n_kv = m.get('num_kv_heads', '?')
+    ne = m.get('num_experts') or '?'
+    na = m.get('num_active_experts') or '?'
+    ns = m.get('num_shared_experts') or 0
+    n_heads = m.get('num_attention_heads') or '?'
+    n_kv = m.get('num_kv_heads') or '?'
     ctx = fmt_ctx(m.get('context_window'))
     name = m.get('display_name', '')
     color = lab_color(m.get('lab', ''))
@@ -384,8 +384,8 @@ def build_model_svg(m):
   <text x="420" y="60" text-anchor="middle" class="svg-label" font-size="11">上下文</text>
   <text x="420" y="78" text-anchor="middle" class="svg-faint" font-size="10">{ctx}</text>"""
 
-    total_b = m.get('total_params_b', '?')
-    active_b = m.get('active_params_b', '?')
+    total_b = m.get('total_params_b') or '?'
+    active_b = m.get('active_params_b') or '?'
     mtp = f"MTP-{m.get('mtp_future_tokens')}" if m.get('supports_mtp') and m.get('mtp_future_tokens') else "无MTP"
     svg += f"""
   <line x1="20" y1="105" x2="480" y2="105" stroke="var(--line)" stroke-dasharray="2,2"/>
@@ -457,34 +457,48 @@ ARCH_ANALYSES = {
         "NVIDIA Nemotron 3 Ultra采用<b>Mamba2-Transformer混合</b>架构（LatentMoE），"
         "550B总参数/55B激活，支持1M上下文。Mamba混合路线的重要代表。"
     ),
+    "glm-5.2": (
+        "GLM-5.2（Z.ai/智谱）是最新迭代版本，744B总参数/40B激活，采用MLA注意力与MoE架构（256路由专家+1共享专家）。"
+        "支持200K上下文窗口，在中文理解、编码和数学推理上持续改进。MIT许可，商业部署友好。"
+    ),
+    "minimax-m3": (
+        "MiniMax M3采用MSA（Multi-Scale Sparse Attention）多尺度稀疏注意力架构，支持1M超长上下文窗口，"
+        "原生多模态能力（文本/图像/视频/音频统一建模）。在长文档理解和多模态任务上表现突出。"
+    ),
 }
 
 CAPABILITY_ANALYSES = {
     "deepseek-v4": "前沿编码能力（SWE-bench Verified约80%+），强Agentic/工具使用能力，竞争力强的数学和推理。Flash变体以3倍速度换取部分质量。",
     "deepseek-v3": "性价比极高的编码和推理能力；强大的Agentic能力；广泛用于生产工作负载。",
     "kimi-k2": "长上下文Agentic能力突出，工具使用和多步推理表现好。",
+    "glm-5.2": "中文理解能力领先，编码和数学推理表现优异，MIT许可商业友好。",
     "glm-5.1": "中文理解优秀，编码和数学能力强，MIT许可可商用。",
     "qwen3-235b-a22b": "综合能力均衡，Apache 2.0许可，社区生态最丰富。",
     "mimo-v2-pro": "长程Agentic任务优秀，1M上下文处理能力强。",
+    "minimax-m3": "超长上下文处理能力强，原生多模态支持，适合多模态长文档任务。",
 }
 
 LINEAGE = {
     "deepseek-v4": "DeepSeek V3 → V3.2(DSA实验) → V4(CSA+HCA+mHC)",
     "deepseek-v3": "DeepSeek V2(MLA MoE) → V3(无辅助损失, MTP, FP8)",
     "kimi-k2": "Kimi K1.5 → K2(MLA MoE, 长上下文优化)",
+    "glm-5.2": "GLM-4 → GLM-5 → GLM-5.1 → GLM-5.2(MLA MoE, 200K上下文)",
     "glm-5.1": "GLM-4 → GLM-5(MLA, MoE) → GLM-5.1",
     "qwen3-235b-a22b": "Qwen2 → Qwen2.5 → Qwen3(MoE, 混合推理)",
     "mimo-v2-pro": "MiMo V1 → V2 Pro(混合注意力, 1M上下文)",
+    "minimax-m3": "MiniMax M1 → M2(MSA稀疏) → M3(多模态, 1M上下文)",
 }
 
 DELTAS = {
     "deepseek-v4": "CSA+HCA混合注意力, mHC残差, 双变体家族, 1M上下文, MIT许可",
     "deepseek-v3": "MLA, 256E+1S MoE, 无辅助损失路由, MTP-1, FP8",
     "kimi-k2": "MLA MoE, 256K上下文, Agentic优化",
+    "glm-5.2": "MLA MoE, 200K上下文, MIT许可, 中文能力增强",
     "glm-5.1": "MLA MoE, 128K上下文, MIT许可",
     "qwen3-235b-a22b": "GQA MoE, 混合推理模式, Apache 2.0",
     "mimo-v2-pro": "混合注意力, 1M上下文, Agentic优化",
     "mistral-large-3": "GQA MoE, Mistral许可",
+    "minimax-m3": "MSA稀疏注意力, 1M上下文, 原生多模态",
     "minimax-m2": "MSA稀疏注意力, 1M上下文",
     "llama-4-maverick": "GQA MoE, 1M上下文, 原生多模态",
     "nemotron-3-ultra": "Mamba2-Tr混合, LatentMoE, 1M上下文",
@@ -492,8 +506,8 @@ DELTAS = {
 
 def build_model_cards(models, lang='zh'):
     cards = []
-    order = ["deepseek-v4", "deepseek-v3", "kimi-k2", "qwen3-235b-a22b", "glm-5.1",
-             "mimo-v2-pro", "mistral-large-3", "minimax-m2", "llama-4-maverick",
+    order = ["deepseek-v4", "deepseek-v3", "kimi-k2", "qwen3-235b-a22b", "glm-5.2", "glm-5.1",
+             "mimo-v2-pro", "mistral-large-3", "minimax-m3", "minimax-m2", "llama-4-maverick",
              "nemotron-3-ultra", "gpt-oss-120b", "gemma-4-31b", "step-3.5-flash", "qwen3-32b"]
     def sort_key(m):
         try: return order.index(m['id'])
