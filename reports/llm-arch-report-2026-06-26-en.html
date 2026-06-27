@@ -78,7 +78,7 @@
     <div class="meta-row">
       <span class="pill">Snapshot 2026-06</span>
       <span class="pill">Generated 2026-06-26</span>
-      <span class="pill">14 models/variants</span>
+      <span class="pill">16 models/variants</span>
       <span class="pill">Sources: Tech reports · HF cards · OpenRouter</span>
     </div>
   </div>
@@ -102,7 +102,7 @@
 <section id="summary">
   <h2>Executive Summary</h2>
   <div class="summary"><ul>
-    <li><b>The DeepSeek V3 template is now the industry standard.</b> 10 of 14 tracked models are MoE.</li><li><b>Attention has forked into four competing paths.</b> MLA dominates frontier; GQA remains mainstream; linear and Mamba are challengers.</li><li><b>Hybrid (toggleable) reasoning is now the default.</b> Most new models support a think/no-think switch.</li><li><b>MTP at inference is the new throughput battleground.</b> MTP-3 delivers 2-3x throughput gains.</li><li><b>Price compression continues but is slowing.</b> Frontier models have stabilized around $0.40-$0.60/$1.50-$2.50.</li>
+    <li><b>The DeepSeek V3 template is now the industry standard.</b> 12 of 16 tracked models are MoE.</li><li><b>Attention has forked into four competing paths.</b> MLA dominates frontier; GQA remains mainstream; linear and Mamba are challengers.</li><li><b>Hybrid (toggleable) reasoning is now the default.</b> Most new models support a think/no-think switch.</li><li><b>MTP at inference is the new throughput battleground.</b> MTP-3 delivers 2-3x throughput gains.</li><li><b>Price compression continues but is slowing.</b> Frontier models have stabilized around $0.40-$0.60/$1.50-$2.50.</li>
   </ul></div>
 </section>
 
@@ -118,6 +118,19 @@
     <th onclick="sortTable(8)">License</th><th class="num" onclick="sortTable(9)">$/1M in</th><th class="num" onclick="sortTable(10)">$/1M out</th>
   </tr></thead><tbody>
         <tr>
+      <td><b>DeepSeek V4</b></td>
+      <td><span class="lab lab-deepseek">DeepSeek</span></td>
+      <td>2026-05-20</td>
+      <td class="num">1600B</td>
+      <td class="num">49B</td>
+      <td>MLA</td>
+      <td>256E8A+1S</td>
+      <td class="num">256K</td>
+      <td>DeepSeek</td>
+      <td class="num">0.500</td>
+      <td class="num">2.00</td>
+    </tr>
+    <tr>
       <td><b>Kimi K2</b></td>
       <td><span class="lab lab-kimi">Kimi (Moonshot)</span></td>
       <td>2025-07-14</td>
@@ -131,19 +144,6 @@
       <td class="num">2.50</td>
     </tr>
     <tr>
-      <td><b>DeepSeek V4</b></td>
-      <td><span class="lab lab-deepseek">DeepSeek</span></td>
-      <td>2026-05-20</td>
-      <td class="num">800B</td>
-      <td class="num">45B</td>
-      <td>MLA</td>
-      <td>256E8A+1S</td>
-      <td class="num">256K</td>
-      <td>DeepSeek</td>
-      <td class="num">0.500</td>
-      <td class="num">2.00</td>
-    </tr>
-    <tr>
       <td><b>GLM-5.1</b></td>
       <td><span class="lab lab-glm">GLM (Z.ai/Zhipu)</span></td>
       <td>2026-03-15</td>
@@ -155,6 +155,19 @@
       <td>glm-license</td>
       <td class="num">0.400</td>
       <td class="num">1.60</td>
+    </tr>
+    <tr>
+      <td><b>GLM-5.2</b></td>
+      <td><span class="lab lab-deepseek">Zhipu AI</span></td>
+      <td>2026-06-15</td>
+      <td class="num">744B</td>
+      <td class="num">40B</td>
+      <td>MLA</td>
+      <td>256E8A+1S</td>
+      <td class="num">200K</td>
+      <td>MIT</td>
+      <td class="num">0.300</td>
+      <td class="num">1.20</td>
     </tr>
     <tr>
       <td><b>DeepSeek V3</b></td>
@@ -299,6 +312,19 @@
       <td class="num">0.200</td>
       <td class="num">0.60</td>
     </tr>
+    <tr>
+      <td><b>MiniMax M3</b></td>
+      <td><span class="lab lab-minimax">MiniMax</span></td>
+      <td>2026-06-20</td>
+      <td class="num">—</td>
+      <td class="num">—</td>
+      <td>MSA稀疏</td>
+      <td>NoneENoneA</td>
+      <td class="num">1M</td>
+      <td>proprietary</td>
+      <td class="num">0.800</td>
+      <td class="num">2.40</td>
+    </tr>
   </tbody></table></div>
 </section>
 
@@ -330,7 +356,7 @@
       <div class="model-card">
       <h3><span class="lab lab-deepseek">DeepSeek</span> &nbsp;DeepSeek V4</h3>
       <div class="spec-strip">
-        <div class="spec"><b>参数</b><span>800B / 45B 激活</span></div>
+        <div class="spec"><b>参数</b><span>1,600B / 49B 激活</span></div>
         <div class="spec"><b>注意力</b><span>MLA</span></div>
         <div class="spec"><b>MoE</b><span>256E8A+1S</span></div>
         <div class="spec"><b>上下文</b><span>256K</span></div>
@@ -357,8 +383,8 @@
   <text x="420" y="60" text-anchor="middle" class="svg-label" font-size="11">上下文</text>
   <text x="420" y="78" text-anchor="middle" class="svg-faint" font-size="10">256K</text>
   <line x1="20" y1="105" x2="480" y2="105" stroke="var(--line)" stroke-dasharray="2,2"/>
-  <text x="30" y="125" class="svg-faint" font-size="10">总参数: 800B</text>
-  <text x="130" y="125" class="svg-faint" font-size="10">激活: 45B</text>
+  <text x="30" y="125" class="svg-faint" font-size="10">总参数: 1600B</text>
+  <text x="130" y="125" class="svg-faint" font-size="10">激活: 49B</text>
   <text x="250" y="125" class="svg-faint" font-size="10">MTP-3</text>
   <text x="350" y="125" class="svg-faint" font-size="10">混合(可切换)</text>
   <text x="30" y="145" class="svg-faint" font-size="9">基于官方config.json与技术报告标注</text>
@@ -1025,6 +1051,105 @@
         <a href="https://openrouter.ai/qwen/qwen-3-32b">OpenRouter</a>
       </div>
     </div>
+    <div class="model-card">
+      <h3><span class="lab lab-deepseek">Zhipu AI</span> &nbsp;GLM-5.2</h3>
+      <div class="spec-strip">
+        <div class="spec"><b>参数</b><span>744B / 40B 激活</span></div>
+        <div class="spec"><b>注意力</b><span>MLA</span></div>
+        <div class="spec"><b>MoE</b><span>256E8A+1S</span></div>
+        <div class="spec"><b>上下文</b><span>200K</span></div>
+        <div class="spec"><b>价格/1M</b><span>$0.300 入 · $1.20 出</span></div>
+        <div class="spec"><b>许可</b><span>MIT</span></div>
+      </div>
+
+      <h4>架构变化与设计动机</h4>
+      <p>GLM-5.2（Z.ai/智谱）是最新迭代，744B总参数/~40B激活，采用Prefix-LM + DSA稀疏注意力架构。支持128K上下文，在中文理解、编码和数学推理上持续改进。MIT许可，商业部署友好。</p>
+
+      <figure><svg viewBox="0 0 500 160" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="500" height="160" rx="6" class="svg-box" opacity="0.5"/>
+  <text x="250" y="22" text-anchor="middle" class="svg-label" font-size="12">GLM-5.2 · 架构概览</text>
+  <rect x="20" y="40" width="140" height="50" rx="4" class="svg-box" stroke="#5b8cff" stroke-width="1.5"/>
+  <text x="90" y="60" text-anchor="middle" class="svg-label" font-size="11">注意力</text>
+  <text x="90" y="78" text-anchor="middle" class="svg-faint" font-size="10">MLA · 128头</text>
+  <text x="90" y="92" text-anchor="middle" class="svg-faint" font-size="9">KV潜在向量压缩</text>
+  <line x1="160" y1="65" x2="190" y2="65" class="svg-flow"/>
+  <rect x="190" y="40" width="150" height="50" rx="4" class="svg-box" stroke="#5b8cff" stroke-width="1.5"/>
+  <text x="265" y="60" text-anchor="middle" class="svg-label" font-size="11">MoE FFN</text>
+  <text x="265" y="78" text-anchor="middle" class="svg-faint" font-size="10">256专家 · top-8+1共享</text>
+  <line x1="340" y1="65" x2="360" y2="65" class="svg-flow"/>
+  <rect x="360" y="40" width="120" height="50" rx="4" class="svg-box"/>
+  <text x="420" y="60" text-anchor="middle" class="svg-label" font-size="11">上下文</text>
+  <text x="420" y="78" text-anchor="middle" class="svg-faint" font-size="10">200K</text>
+  <line x1="20" y1="105" x2="480" y2="105" stroke="var(--line)" stroke-dasharray="2,2"/>
+  <text x="30" y="125" class="svg-faint" font-size="10">总参数: 744B</text>
+  <text x="130" y="125" class="svg-faint" font-size="10">激活: 40B</text>
+  <text x="250" y="125" class="svg-faint" font-size="10">MTP-3</text>
+  <text x="350" y="125" class="svg-faint" font-size="10">混合(可切换)</text>
+  <text x="30" y="145" class="svg-faint" font-size="9">基于官方config.json与技术报告标注</text>
+</svg><figcaption><b>图.</b> GLM-5.2 架构概览（基于官方配置标注）</figcaption></figure>
+
+      <h4>能力评估</h4>
+      <p>能力覆盖编码、推理和通用任务。详见下方基准矩阵。 <span class="tag-measured">[实测]</span> / <span class="tag-claimed">[厂商声称]</span> 如标注所示。</p>
+
+      <h4>技术谱系</h4>
+      <p>详见实验室技术报告。 → 增量变化：详见技术报告。。</p>
+
+      <div class="sources">来源：
+        <a href="https://z.ai/blog/glm-5">技术报告</a>
+        <a href="https://huggingface.co/zai-org/GLM-5.2/blob/main/config.json">config.json</a>
+        <a href="https://huggingface.co/zai-org/GLM-5.2">HF模型卡</a>
+        <a href="https://openrouter.ai/zhipu/glm-5.2">OpenRouter</a>
+      </div>
+    </div>
+    <div class="model-card">
+      <h3><span class="lab lab-minimax">MiniMax</span> &nbsp;MiniMax M3</h3>
+      <div class="spec-strip">
+        <div class="spec"><b>参数</b><span>—B / —B 激活</span></div>
+        <div class="spec"><b>注意力</b><span>MSA稀疏</span></div>
+        <div class="spec"><b>MoE</b><span>NoneENoneA</span></div>
+        <div class="spec"><b>上下文</b><span>1M</span></div>
+        <div class="spec"><b>价格/1M</b><span>$0.800 入 · $2.40 出</span></div>
+        <div class="spec"><b>许可</b><span>proprietary</span></div>
+      </div>
+
+      <h4>架构变化与设计动机</h4>
+      <p>MiniMax M3采用MSA稀疏注意力与NoneENoneA配置，支持1M上下文窗口。</p>
+
+      <figure><svg viewBox="0 0 500 160" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="500" height="160" rx="6" class="svg-box" opacity="0.5"/>
+  <text x="250" y="22" text-anchor="middle" class="svg-label" font-size="12">MiniMax M3 · 架构概览</text>
+  <rect x="20" y="40" width="140" height="50" rx="4" class="svg-box" stroke="#e94f9e" stroke-width="1.5"/>
+  <text x="90" y="60" text-anchor="middle" class="svg-label" font-size="11">注意力</text>
+  <text x="90" y="78" text-anchor="middle" class="svg-faint" font-size="10">MSA稀疏注意力 · None头</text>
+  <line x1="160" y1="65" x2="190" y2="65" class="svg-flow"/>
+  <rect x="190" y="40" width="150" height="50" rx="4" class="svg-box" stroke="#e94f9e" stroke-width="1.5"/>
+  <text x="265" y="60" text-anchor="middle" class="svg-label" font-size="11">MoE FFN</text>
+  <text x="265" y="78" text-anchor="middle" class="svg-faint" font-size="10">None专家 · top-None</text>
+  <line x1="340" y1="65" x2="360" y2="65" class="svg-flow"/>
+  <rect x="360" y="40" width="120" height="50" rx="4" class="svg-box"/>
+  <text x="420" y="60" text-anchor="middle" class="svg-label" font-size="11">上下文</text>
+  <text x="420" y="78" text-anchor="middle" class="svg-faint" font-size="10">1M</text>
+  <line x1="20" y1="105" x2="480" y2="105" stroke="var(--line)" stroke-dasharray="2,2"/>
+  <text x="30" y="125" class="svg-faint" font-size="10">总参数: NoneB</text>
+  <text x="130" y="125" class="svg-faint" font-size="10">激活: NoneB</text>
+  <text x="250" y="125" class="svg-faint" font-size="10">MTP-4</text>
+  <text x="350" y="125" class="svg-faint" font-size="10">混合(可切换)</text>
+  <text x="30" y="145" class="svg-faint" font-size="9">基于官方config.json与技术报告标注</text>
+</svg><figcaption><b>图.</b> MiniMax M3 架构概览（基于官方配置标注）</figcaption></figure>
+
+      <h4>能力评估</h4>
+      <p>能力覆盖编码、推理和通用任务。详见下方基准矩阵。 <span class="tag-measured">[实测]</span> / <span class="tag-claimed">[厂商声称]</span> 如标注所示。</p>
+
+      <h4>技术谱系</h4>
+      <p>详见实验室技术报告。 → 增量变化：详见技术报告。。</p>
+
+      <div class="sources">来源：
+        <a href="https://www.minimaxi.com/blog/minimax-m3">技术报告</a>
+        <a href="#">config.json</a>
+        <a href="#">HF模型卡</a>
+        <a href="https://openrouter.ai/minimax/minimax-m3">OpenRouter</a>
+      </div>
+    </div>
 </section>
 
 <!-- 能力对比 -->
@@ -1083,6 +1208,12 @@
     <tr><td><b>Step 3.5 Flash</b></td><td class="num">72</td><td class="num">70</td>
         <td class="num">74</td><td class="num">70</td>
         <td class="num">75</td><td>Text/Code</td></tr>
+    <tr><td><b>GLM-5.2</b></td><td class="num">—</td><td class="num">—</td>
+        <td class="num">—</td><td class="num">—</td>
+        <td class="num">—</td><td>—</td></tr>
+    <tr><td><b>MiniMax M3</b></td><td class="num">—</td><td class="num">—</td>
+        <td class="num">—</td><td class="num">—</td>
+        <td class="num">—</td><td>—</td></tr>
       </tbody>
     </table>
   </div>
@@ -1112,7 +1243,7 @@
     <figcaption><b>图.</b> Release timeline of major open-source models</figcaption></figure>
 
   <h3>MoE Sparsification & the Shared-Expert Debate</h3>
-  <p>MoE is now dominant: 10 of 14 tracked models use MoE.</p>
+  <p>MoE is now dominant: 12 of 16 tracked models use MoE.</p>
   <figure><div id="fig-sparsity"></div>
     <figcaption><b>图.</b> MoE sparsity scatter (total vs active params)</figcaption></figure>
 
@@ -1389,12 +1520,12 @@
       var costEl = document.getElementById('fig-cost');
       if (costEl) {
         costEl.innerHTML = CH.scatter(
-          [{"x": 2.0, "y": 95, "r": 16, "label": "DS-V4", "color": "#5b8cff"}, {"x": 1.1, "y": 88, "r": 17, "label": "DS-V3", "color": "#5b8cff"}, {"x": 1.5, "y": 86, "r": 14, "label": "Q3-235B-A22B", "color": "#6a5acd"}, {"x": 0.18, "y": 77, "r": 13, "label": "Q3-32B", "color": "#6a5acd"}, {"x": 2.5, "y": 87, "r": 12, "label": "K-K2", "color": "#ff6f61"}, {"x": 1.6, "y": 86, "r": 11, "label": "GLM", "color": "#8a63d2"}, {"x": 1.2, "y": 87, "r": 15, "label": "MiMo-V2", "color": "#ff6900"}, {"x": 0.6, "y": 74, "r": 8, "label": "G4-31", "color": "#ea4335"}, {"x": 2.25, "y": 80, "r": 7, "label": "L4-Maverick", "color": "#0668e1"}, {"x": 6.0, "y": 84, "r": 10, "label": "M-L3", "color": "#ff7000"}, {"x": 0.6, "y": 72, "r": 9, "label": "Step-F", "color": "#00b8d9"}, {"x": 0.6, "y": 80, "r": 6, "label": "N-U", "color": "#76b900"}, {"x": 1.5, "y": 82, "r": 5, "label": "M2", "color": "#e94f9e"}, {"x": 0.8, "y": 82, "r": 4, "label": "OSS-120", "color": "#19c37d"}],
+          [{"x": 2.0, "y": 95, "r": 16, "label": "DS-V4", "color": "#5b8cff"}, {"x": 1.1, "y": 88, "r": 17, "label": "DS-V3", "color": "#5b8cff"}, {"x": 1.5, "y": 86, "r": 14, "label": "Q3-235B-A22B", "color": "#6a5acd"}, {"x": 0.18, "y": 77, "r": 13, "label": "Q3-32B", "color": "#6a5acd"}, {"x": 2.5, "y": 87, "r": 12, "label": "K-K2", "color": "#ff6f61"}, {"x": 1.6, "y": 86, "r": 11, "label": "GLM", "color": "#8a63d2"}, {"x": 1.2, "y": 87, "r": 15, "label": "MiMo-V2", "color": "#ff6900"}, {"x": 0.6, "y": 74, "r": 8, "label": "G4-31", "color": "#ea4335"}, {"x": 2.25, "y": 80, "r": 7, "label": "L4-Maverick", "color": "#0668e1"}, {"x": 6.0, "y": 84, "r": 10, "label": "M-L3", "color": "#ff7000"}, {"x": 0.6, "y": 72, "r": 9, "label": "Step-F", "color": "#00b8d9"}, {"x": 0.6, "y": 80, "r": 6, "label": "N-U", "color": "#76b900"}, {"x": 1.5, "y": 82, "r": 5, "label": "M2", "color": "#e94f9e"}, {"x": 1.2, "y": 70, "r": 4, "label": "GLM-5.2", "color": "#5b8cff"}, {"x": 2.4, "y": 70, "r": 4, "label": "MiniMax M3", "color": "#e94f9e"}, {"x": 0.8, "y": 82, "r": 4, "label": "OSS-120", "color": "#19c37d"}],
           {xlabel:"$/1M output tokens", ylabel:"Capability score (0-100)", title:"Capability vs Cost (bubble ∝ usage)", xlog:false});
       }
       var tlEl = document.getElementById('fig-timeline');
       if (tlEl) {
-        tlEl.innerHTML = CH.timeline([{"date": "2024-12-25", "label": "DeepSeek V3", "color": "#5b8cff"}, {"date": "2025-04-05", "label": "Llama 4 Maverick", "color": "#0668e1"}, {"date": "2025-04-29", "label": "Qwen3 235B-A22B", "color": "#6a5acd"}, {"date": "2025-04-29", "label": "Qwen3 32B", "color": "#6a5acd"}, {"date": "2025-07-14", "label": "Kimi K2", "color": "#ff6f61"}, {"date": "2025-08-05", "label": "GPT-OSS 120B", "color": "#19c37d"}, {"date": "2026-01-15", "label": "MiMo V2 Pro", "color": "#ff6900"}, {"date": "2026-01-20", "label": "MiniMax M2", "color": "#e94f9e"}, {"date": "2026-02-10", "label": "Step 3.5 Flash", "color": "#00b8d9"}, {"date": "2026-02-20", "label": "Gemma 4 31B", "color": "#ea4335"}, {"date": "2026-03-01", "label": "Mistral Large 3", "color": "#ff7000"}, {"date": "2026-03-15", "label": "GLM-5.1", "color": "#8a63d2"}, {"date": "2026-04-10", "label": "Nemotron 3 Ultra", "color": "#76b900"}, {"date": "2026-05-20", "label": "DeepSeek V4", "color": "#5b8cff"}], {w:760});
+        tlEl.innerHTML = CH.timeline([{"date": "2024-12-25", "label": "DeepSeek V3", "color": "#5b8cff"}, {"date": "2025-04-05", "label": "Llama 4 Maverick", "color": "#0668e1"}, {"date": "2025-04-29", "label": "Qwen3 235B-A22B", "color": "#6a5acd"}, {"date": "2025-04-29", "label": "Qwen3 32B", "color": "#6a5acd"}, {"date": "2025-07-14", "label": "Kimi K2", "color": "#ff6f61"}, {"date": "2025-08-05", "label": "GPT-OSS 120B", "color": "#19c37d"}, {"date": "2026-01-15", "label": "MiMo V2 Pro", "color": "#ff6900"}, {"date": "2026-01-20", "label": "MiniMax M2", "color": "#e94f9e"}, {"date": "2026-02-10", "label": "Step 3.5 Flash", "color": "#00b8d9"}, {"date": "2026-02-20", "label": "Gemma 4 31B", "color": "#ea4335"}, {"date": "2026-03-01", "label": "Mistral Large 3", "color": "#ff7000"}, {"date": "2026-03-15", "label": "GLM-5.1", "color": "#8a63d2"}, {"date": "2026-04-10", "label": "Nemotron 3 Ultra", "color": "#76b900"}, {"date": "2026-05-20", "label": "DeepSeek V4", "color": "#5b8cff"}, {"date": "2026-06-15", "label": "GLM-5.2", "color": "#5b8cff"}, {"date": "2026-06-20", "label": "MiniMax M3", "color": "#e94f9e"}], {w:760});
       }
       var kvEl = document.getElementById('fig-kv');
       if (kvEl) {
@@ -1405,7 +1536,7 @@
       var spEl = document.getElementById('fig-sparsity');
       if (spEl) {
         spEl.innerHTML = CH.scatter(
-          [{"x": 800.0, "y": 45.0, "r": 8, "label": "DeepSeek V4", "color": "#5b8cff"}, {"x": 671.0, "y": 37.0, "r": 8, "label": "DeepSeek V3", "color": "#5b8cff"}, {"x": 235.0, "y": 22.0, "r": 8, "label": "Qwen3 235B-A", "color": "#6a5acd"}, {"x": 32.0, "y": 32.0, "r": 8, "label": "Qwen3 32B", "color": "#6a5acd"}, {"x": 1040.0, "y": 32.0, "r": 8, "label": "Kimi K2", "color": "#ff6f61"}, {"x": 754.0, "y": 40.0, "r": 8, "label": "GLM-5.1", "color": "#8a63d2"}, {"x": 450.0, "y": 35.0, "r": 8, "label": "MiMo V2 Pro", "color": "#ff6900"}, {"x": 31.0, "y": 31.0, "r": 8, "label": "Gemma 4 31B", "color": "#ea4335"}, {"x": 400.0, "y": 17.0, "r": 8, "label": "Llama 4 Mave", "color": "#0668e1"}, {"x": 560.0, "y": 56.0, "r": 8, "label": "Mistral Larg", "color": "#ff7000"}, {"x": 280.0, "y": 17.0, "r": 8, "label": "Step 3.5 Fla", "color": "#00b8d9"}, {"x": 120.0, "y": 120.0, "r": 8, "label": "Nemotron 3 U", "color": "#76b900"}, {"x": 456.0, "y": 40.0, "r": 8, "label": "MiniMax M2", "color": "#e94f9e"}, {"x": 120.0, "y": 120.0, "r": 8, "label": "GPT-OSS 120B", "color": "#19c37d"}],
+          [{"x": 1600.0, "y": 49.0, "r": 8, "label": "DeepSeek V4", "color": "#5b8cff"}, {"x": 671.0, "y": 37.0, "r": 8, "label": "DeepSeek V3", "color": "#5b8cff"}, {"x": 235.0, "y": 22.0, "r": 8, "label": "Qwen3 235B-A", "color": "#6a5acd"}, {"x": 32.0, "y": 32.0, "r": 8, "label": "Qwen3 32B", "color": "#6a5acd"}, {"x": 1040.0, "y": 32.0, "r": 8, "label": "Kimi K2", "color": "#ff6f61"}, {"x": 754.0, "y": 40.0, "r": 8, "label": "GLM-5.1", "color": "#8a63d2"}, {"x": 450.0, "y": 35.0, "r": 8, "label": "MiMo V2 Pro", "color": "#ff6900"}, {"x": 31.0, "y": 31.0, "r": 8, "label": "Gemma 4 31B", "color": "#ea4335"}, {"x": 400.0, "y": 17.0, "r": 8, "label": "Llama 4 Mave", "color": "#0668e1"}, {"x": 560.0, "y": 56.0, "r": 8, "label": "Mistral Larg", "color": "#ff7000"}, {"x": 280.0, "y": 17.0, "r": 8, "label": "Step 3.5 Fla", "color": "#00b8d9"}, {"x": 120.0, "y": 120.0, "r": 8, "label": "Nemotron 3 U", "color": "#76b900"}, {"x": 456.0, "y": 40.0, "r": 8, "label": "MiniMax M2", "color": "#e94f9e"}, {"x": 744.0, "y": 40.0, "r": 8, "label": "GLM-5.2", "color": "#5b8cff"}, {"x": 120.0, "y": 120.0, "r": 8, "label": "GPT-OSS 120B", "color": "#19c37d"}],
           {xlabel:"Total params (B, log scale)", ylabel:"Active params (B)", title:"MoE sparsity: total vs active", xlog:true});
       }
     } catch (e) { console.warn('chart render skipped:', e); }
